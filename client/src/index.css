@@ -1,0 +1,290 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-success: hsl(var(--success));
+  --color-success-light: hsl(var(--success-light));
+  --color-warning: hsl(var(--warning));
+  --color-warning-light: hsl(var(--warning-light));
+  --color-critical: hsl(var(--critical));
+  --color-critical-light: hsl(var(--critical-light));
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Sora", sans-serif;
+}
+
+@layer base {
+  :root {
+    /* Color palette - elegant and premium */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 8%;
+
+    --primary: 219 89% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 280 85% 56%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 48 96% 53%;
+    --accent-foreground: 240 10% 8%;
+
+    --muted: 240 5% 90%;
+    --muted-foreground: 240 5% 40%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 5% 92%;
+    --input: 240 5% 95%;
+    --ring: 219 89% 52%;
+
+    /* Semantic colors for financial app */
+    --success: 142 76% 36%;
+    --success-light: 142 76% 90%;
+    --warning: 38 92% 50%;
+    --warning-light: 38 92% 90%;
+    --critical: 0 84% 60%;
+    --critical-light: 0 84% 90%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+
+    /* Typography */
+    --font-sans: "Inter", sans-serif;
+    --font-display: "Sora", sans-serif;
+  }
+
+  .dark {
+    --background: 240 10% 8%;
+    --foreground: 0 0% 100%;
+
+    --card: 240 10% 12%;
+    --card-foreground: 0 0% 100%;
+
+    --primary: 219 89% 62%;
+    --primary-foreground: 240 10% 8%;
+
+    --secondary: 280 85% 66%;
+    --secondary-foreground: 240 10% 8%;
+
+    --accent: 48 96% 63%;
+    --accent-foreground: 240 10% 8%;
+
+    --muted: 240 5% 25%;
+    --muted-foreground: 240 5% 70%;
+
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 240 10% 8%;
+
+    --border: 240 5% 20%;
+    --input: 240 5% 15%;
+    --ring: 219 89% 62%;
+
+    --success: 142 76% 56%;
+    --success-light: 142 76% 20%;
+    --warning: 38 92% 60%;
+    --warning-light: 38 92% 20%;
+    --critical: 0 84% 70%;
+    --critical-light: 0 84% 20%;
+  }
+
+  /* Removed universal border styling - causes conflicts with Tailwind 4 */
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-bold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl;
+  }
+
+  h2 {
+    @apply text-3xl;
+  }
+
+  h3 {
+    @apply text-2xl;
+  }
+
+  h4 {
+    @apply text-xl;
+  }
+
+  h5 {
+    @apply text-lg;
+  }
+
+  h6 {
+    @apply text-base;
+  }
+
+  /* Utility classes */
+  .container {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .flex {
+    @apply flex min-h-0 min-w-0;
+  }
+
+  .button-press {
+    @apply active:scale-95 transition-transform duration-150;
+  }
+
+  /* Financial app specific utilities */
+  .score-excellent {
+    @apply text-green-600 dark:text-green-400;
+  }
+
+  .score-good {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+
+  .score-fair {
+    @apply text-yellow-600 dark:text-yellow-400;
+  }
+
+  .score-poor {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:scale-105;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary to-secondary;
+  }
+
+  .gradient-accent {
+    @apply bg-gradient-to-br from-accent to-primary;
+  }
+
+  /* Smooth animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-down {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-slide-in-up {
+    animation: slide-in-up 0.4s ease-out;
+  }
+
+  .animate-slide-in-down {
+    animation: slide-in-down 0.4s ease-out;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 active:scale-95 transition-transform;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors duration-200 active:scale-95 transition-transform;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium border border-slate-300 text-foreground hover:bg-muted transition-colors duration-200 active:scale-95 transition-transform;
+  }
+
+  .card-base {
+    @apply rounded-xl border border-slate-300 bg-card text-card-foreground shadow-sm;
+  }
+
+  .card-interactive {
+    @apply rounded-xl border border-slate-300 bg-card text-card-foreground shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/30;
+  }
+
+  .badge-base {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .badge-primary {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary;
+  }
+
+  .badge-success {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-success-light text-success;
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-warning-light text-warning;
+  }
+
+  .badge-critical {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-critical-light text-critical;
+  }
+
+  .score-ring {
+    @apply relative inline-flex items-center justify-center rounded-full;
+  }
+}
