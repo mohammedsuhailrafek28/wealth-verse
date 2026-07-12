@@ -102,6 +102,12 @@ export default function Home() {
   const authActions = useMemo(
     () => [
       {
+        label: "Get started",
+        href: "/signup",
+        variant: "secondary" as const,
+        ariaLabel: "Get started with WealthVerse",
+      },
+      {
         label: "Sign in",
         href: "/login",
         variant: "primary" as const,
@@ -145,8 +151,8 @@ export default function Home() {
                   asChild
                   className="min-h-11 bg-wv-accent px-6 text-white hover:bg-wv-accent-hover"
                 >
-                  <a href="/login" aria-label="Sign in to WealthVerse">
-                    Sign in to WealthVerse
+                  <a href="/signup" aria-label="Get started with WealthVerse">
+                    Get started
                     <ArrowRight className="size-4" aria-hidden="true" />
                   </a>
                 </Button>
@@ -324,7 +330,7 @@ export default function Home() {
                 asChild
                 className="min-h-11 bg-wv-accent px-6 text-white hover:bg-wv-accent-hover"
               >
-                <a href="/login">Sign in to WealthVerse</a>
+                <a href="/signup">Get started</a>
               </Button>
               <Button
                 asChild

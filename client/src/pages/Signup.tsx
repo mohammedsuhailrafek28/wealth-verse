@@ -1,5 +1,6 @@
-import heroBankingSecurity from "@/assets/wealthverse/hero-banking-security.png";
+import heroFamily from "@/assets/wealthverse/hero-family.png";
 import wealthverseLogo from "@/assets/wealthverse/wealthverse-logo.png";
+import { AuthBenefitList } from "@/components/auth/AuthBenefitList";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { OAuthLoginButton } from "@/components/auth/OAuthLoginButton";
 import { Button } from "@/components/ui/button";
@@ -7,21 +8,49 @@ import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
   ArrowLeft,
-  CheckCircle2,
+  BarChart3,
   Loader2,
-  LockKeyhole,
   ShieldCheck,
+  Sparkles,
+  Target,
 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 
 const DASHBOARD_PATH = "/dashboard";
+
+const onboardingBenefits = [
+  {
+    title: "Understand your financial health",
+    description:
+      "Review spending, savings, debt, goals, and readiness signals in one workspace.",
+    icon: <BarChart3 className="size-4" aria-hidden="true" />,
+  },
+  {
+    title: "Set and track meaningful goals",
+    description:
+      "Use goal progress and forecast context to understand what needs attention.",
+    icon: <Target className="size-4" aria-hidden="true" />,
+  },
+  {
+    title: "Receive explainable guidance",
+    description:
+      "Explore educational recommendations with reasoning, risk labels, and next steps.",
+    icon: <Sparkles className="size-4" aria-hidden="true" />,
+  },
+];
+
+const onboardingSteps = [
+  "Continue through secure sign-in.",
+  "Access your WealthVerse workspace.",
+  "Explore your financial health, goals, recommendations, and advisor tools.",
+];
 
 function replaceRoute(path: string) {
   window.history.replaceState(null, "", path);
   window.dispatchEvent(new Event("wealthverse:navigation"));
 }
 
-export default function Login() {
+export default function Signup() {
   const { isAuthenticated, loading } = useAuth();
   const loginUrl = useMemo(() => getLoginUrl(), []);
   const isDemoFallback = loginUrl === DASHBOARD_PATH;
@@ -32,25 +61,25 @@ export default function Login() {
     }
   }, [isAuthenticated, loading]);
 
-  const signInLabel = isDemoFallback
+  const setupLabel = isDemoFallback
     ? "Enter demo workspace"
-    : "Continue with secure sign-in";
+    : "Create my WealthVerse access";
 
   return (
     <main className="min-h-screen bg-wv-background text-wv-text">
-      <div className="mx-auto grid min-h-screen max-w-[var(--wv-content-width)] gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[1.03fr_0.97fr] lg:px-8 lg:py-8">
+      <div className="mx-auto grid min-h-screen max-w-[var(--wv-content-width)] gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_1fr] lg:px-8 lg:py-8">
         <section
           className="relative hidden overflow-hidden rounded-[var(--wv-radius-card)] bg-wv-primary-dark text-white shadow-wv-card lg:block"
-          aria-label="WealthVerse secure access overview"
+          aria-label="WealthVerse onboarding overview"
         >
           <img
-            src={heroBankingSecurity}
-            width={1120}
-            height={500}
-            alt="Secure digital banking dashboard illustration"
-            className="absolute inset-0 h-full w-full object-cover opacity-72"
+            src={heroFamily}
+            width={1038}
+            height={372}
+            alt="Family planning finances together"
+            className="absolute inset-0 h-full w-full object-cover opacity-76"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-wv-primary-dark/96 via-wv-primary-dark/78 to-wv-primary/42" />
+          <div className="absolute inset-0 bg-gradient-to-br from-wv-primary-dark/96 via-wv-primary-dark/80 to-wv-primary/38" />
           <div className="relative flex min-h-full flex-col justify-between p-8 xl:p-10">
             <a
               href="/"
@@ -67,32 +96,19 @@ export default function Login() {
             <div className="max-w-xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/24 bg-white/12 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-white">
                 <ShieldCheck className="size-4" aria-hidden="true" />
-                Session-based access
+                Guided onboarding
               </p>
               <h2 className="mt-5 font-display text-4xl font-bold leading-tight tracking-tight xl:text-5xl">
-                Your financial workspace starts with a protected session.
+                Begin with clarity before making financial decisions.
               </h2>
               <p className="mt-4 max-w-lg text-base leading-7 text-white/82">
-                Your financial insights stay connected to your authenticated
-                WealthVerse session, with local demo access available when OAuth
-                is not configured.
+                WealthVerse helps you enter a session-backed workspace for
+                understanding financial health, goals, recommendations, and
+                advisor guidance.
               </p>
             </div>
 
-            <ul className="grid gap-3 text-sm text-white/82">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-wv-accent" aria-hidden="true" />
-                Existing OAuth flow is preserved.
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-wv-accent" aria-hidden="true" />
-                Demo mode uses the app's current fallback behavior.
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-wv-accent" aria-hidden="true" />
-                WealthVerse provides educational financial insights only.
-              </li>
-            </ul>
+            <AuthBenefitList benefits={onboardingBenefits} />
           </div>
         </section>
 
@@ -111,7 +127,7 @@ export default function Login() {
                 eyebrow="Checking access"
                 title="Preparing your workspace"
                 titleLevel={1}
-                description="We are checking your current WealthVerse session before showing sign-in options."
+                description="We are checking your current WealthVerse session before showing onboarding options."
               >
                 <div
                   className="flex min-h-28 items-center justify-center gap-3 rounded-[var(--wv-radius-form)] border border-wv-border bg-wv-background text-sm font-medium text-wv-text-secondary"
@@ -124,37 +140,34 @@ export default function Login() {
               </AuthCard>
             ) : (
               <AuthCard
-                eyebrow="Secure access"
-                title="Welcome back"
+                eyebrow="Get started"
+                title="Begin your WealthVerse experience"
                 titleLevel={1}
-                description="Access your financial health, goals, recommendations, and advisor experience."
+                description="Continue through secure sign-in to access your financial health, goals, recommendations, and digital advisor experience."
                 footer={
                   <p className="text-xs leading-5 text-wv-muted">
                     WealthVerse provides educational financial insights and does
-                    not guarantee investment outcomes. Consult a qualified
-                    professional before making financial decisions.
+                    not guarantee financial or investment outcomes.
                   </p>
                 }
               >
                 <div className="space-y-5">
-                  <OAuthLoginButton href={loginUrl} label={signInLabel} />
+                  <OAuthLoginButton href={loginUrl} label={setupLabel} />
 
                   <div className="rounded-[var(--wv-radius-form)] border border-wv-border bg-wv-background p-4">
-                    <div className="flex gap-3">
-                      <LockKeyhole className="mt-0.5 size-5 shrink-0 text-wv-primary" aria-hidden="true" />
-                      <div>
-                        <h2 className="text-sm font-bold text-wv-text">
-                          {isDemoFallback
-                            ? "Local demo access is active"
-                            : "Secure sign-in is configured"}
-                        </h2>
-                        <p className="mt-1 text-sm leading-6 text-wv-text-secondary">
-                          {isDemoFallback
-                            ? "OAuth variables are not configured in this environment, so the existing sign-in action opens the demo workspace."
-                            : "The sign-in button opens the configured WealthVerse OAuth flow and returns you to the app after authentication."}
-                        </p>
-                      </div>
-                    </div>
+                    <h2 className="text-sm font-bold text-wv-text">
+                      What happens next
+                    </h2>
+                    <ol className="mt-3 space-y-3">
+                      {onboardingSteps.map((step, index) => (
+                        <li key={step} className="flex gap-3 text-sm text-wv-text-secondary">
+                          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-wv-primary text-xs font-bold text-white">
+                            {index + 1}
+                          </span>
+                          <span className="pt-0.5 leading-5">{step}</span>
+                        </li>
+                      ))}
+                    </ol>
                   </div>
 
                   <Button
@@ -162,12 +175,12 @@ export default function Login() {
                     variant="outline"
                     className="min-h-11 w-full border-wv-border text-wv-text hover:bg-wv-background"
                   >
-                    <a href="/signup">New to WealthVerse? Get started</a>
+                    <a href="/login">Already use WealthVerse? Sign in</a>
                   </Button>
 
                   <p className="text-center text-xs leading-5 text-wv-muted">
-                    Password, OTP, password reset, and standalone signup are not
-                    available in this prototype yet.
+                    Email signup, OTP verification, KYC, and bank linking are
+                    not part of this prototype signup flow.
                   </p>
                 </div>
               </AuthCard>
