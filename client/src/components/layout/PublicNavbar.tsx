@@ -98,7 +98,9 @@ export function PublicNavbar({
               onClick={onMobileMenuClick}
               aria-expanded={mobileMenuOpen}
               aria-controls="public-mobile-navigation"
-              aria-label="Open navigation menu"
+              aria-label={
+                mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"
+              }
             >
               <Menu className="size-4" aria-hidden="true" />
             </Button>

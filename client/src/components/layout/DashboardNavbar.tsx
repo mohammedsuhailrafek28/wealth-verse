@@ -121,7 +121,11 @@ export function DashboardNavbar({
               onClick={onMobileMenuClick}
               aria-expanded={mobileMenuOpen}
               aria-controls="dashboard-mobile-navigation"
-              aria-label="Open dashboard navigation"
+              aria-label={
+                mobileMenuOpen
+                  ? "Close dashboard navigation"
+                  : "Open dashboard navigation"
+              }
             >
               <Menu className="size-4" aria-hidden="true" />
             </Button>
