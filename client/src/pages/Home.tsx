@@ -7,7 +7,6 @@ import { Footer } from "@/components/layout/Footer";
 import { PublicNavbar, type PublicNavLink } from "@/components/layout/PublicNavbar";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/wealth/SectionHeader";
-import { getLoginUrl } from "@/const";
 import {
   ArrowRight,
   BarChart3,
@@ -100,17 +99,16 @@ const productFeatures = [
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const loginUrl = useMemo(() => getLoginUrl(), []);
   const authActions = useMemo(
     () => [
       {
         label: "Sign in",
-        href: loginUrl,
+        href: "/login",
         variant: "primary" as const,
         ariaLabel: "Sign in to WealthVerse",
       },
     ],
-    [loginUrl]
+    []
   );
 
   return (
@@ -147,7 +145,7 @@ export default function Home() {
                   asChild
                   className="min-h-11 bg-wv-accent px-6 text-white hover:bg-wv-accent-hover"
                 >
-                  <a href={loginUrl} aria-label="Sign in to WealthVerse">
+                  <a href="/login" aria-label="Sign in to WealthVerse">
                     Sign in to WealthVerse
                     <ArrowRight className="size-4" aria-hidden="true" />
                   </a>
@@ -326,7 +324,7 @@ export default function Home() {
                 asChild
                 className="min-h-11 bg-wv-accent px-6 text-white hover:bg-wv-accent-hover"
               >
-                <a href={loginUrl}>Sign in to WealthVerse</a>
+                <a href="/login">Sign in to WealthVerse</a>
               </Button>
               <Button
                 asChild

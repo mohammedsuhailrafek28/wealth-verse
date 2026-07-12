@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import SpendingInsights from "./pages/SpendingInsights";
 import GoalPlanner from "./pages/GoalPlanner";
@@ -55,6 +56,7 @@ function Router() {
   const location = useCurrentPath();
 
   if (location === "/") return isAuthenticated ? <Dashboard /> : <Home />;
+  if (location === "/login") return <Login />;
   if (location === "/dashboard") return <Dashboard />;
   if (location === "/spending") return <SpendingInsights />;
   if (location === "/goals") return <GoalPlanner />;
