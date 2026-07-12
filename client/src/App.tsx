@@ -1,19 +1,21 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { RouteLoadingFallback } from "./components/common/RouteLoadingFallback";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Support from "./pages/Support";
-import Dashboard from "./pages/Dashboard";
-import SpendingInsights from "./pages/SpendingInsights";
-import GoalPlanner from "./pages/GoalPlanner";
-import Recommendations from "./pages/Recommendations";
-import AvatarAdvisor from "./pages/AvatarAdvisor";
 import { useAuth } from "./_core/hooks/useAuth";
+
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Support = lazy(() => import("./pages/Support"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const SpendingInsights = lazy(() => import("./pages/SpendingInsights"));
+const GoalPlanner = lazy(() => import("./pages/GoalPlanner"));
+const Recommendations = lazy(() => import("./pages/Recommendations"));
+const AvatarAdvisor = lazy(() => import("./pages/AvatarAdvisor"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 let historyEventsPatched = false;
 
@@ -75,7 +77,9 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Router />
+          </Suspense>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

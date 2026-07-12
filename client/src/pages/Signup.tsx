@@ -78,6 +78,8 @@ export default function Signup() {
             height={372}
             alt="Family planning finances together"
             className="absolute inset-0 h-full w-full object-cover opacity-76"
+            loading="lazy"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-wv-primary-dark/96 via-wv-primary-dark/80 to-wv-primary/38" />
           <div className="relative flex min-h-full flex-col justify-between p-8 xl:p-10">
@@ -89,6 +91,8 @@ export default function Signup() {
                 src={wealthverseLogo}
                 alt=""
                 className="size-10 rounded-md bg-white object-contain p-1"
+                loading="lazy"
+                decoding="async"
               />
               <span className="font-display text-xl font-bold">WealthVerse</span>
             </a>

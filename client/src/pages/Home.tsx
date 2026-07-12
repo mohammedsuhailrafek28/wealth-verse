@@ -182,6 +182,8 @@ export default function Home() {
                   alt="Mobile banking and wealth dashboard preview"
                   className="aspect-[1030/376] w-full rounded-[6px] object-cover"
                   loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
                 />
               </div>
             </div>
@@ -308,6 +310,7 @@ export default function Home() {
               alt="Family planning finances together"
               className="aspect-[1038/372] w-full rounded-[var(--wv-radius-card)] object-cover shadow-wv-card"
               loading="lazy"
+              decoding="async"
             />
           </div>
         </section>
@@ -463,6 +466,7 @@ function ImageStorySection({
           alt={imageAlt}
           className="w-full rounded-[var(--wv-radius-card)] object-cover shadow-wv-card"
           loading="lazy"
+          decoding="async"
         />
       </div>
     </section>
