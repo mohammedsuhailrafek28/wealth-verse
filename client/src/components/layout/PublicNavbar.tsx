@@ -22,6 +22,7 @@ export type PublicNavbarProps = {
   brandName?: string;
   links: PublicNavLink[];
   actions?: PublicNavbarAction[];
+  mobileMenuOpen?: boolean;
   onMobileMenuClick?: () => void;
   className?: string;
   children?: ReactNode;
@@ -32,6 +33,7 @@ export function PublicNavbar({
   brandName = "WealthVerse",
   links,
   actions = [],
+  mobileMenuOpen = false,
   onMobileMenuClick,
   className,
   children,
@@ -94,6 +96,8 @@ export function PublicNavbar({
               size="icon"
               className="border-wv-border text-wv-text md:hidden"
               onClick={onMobileMenuClick}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="public-mobile-navigation"
               aria-label="Open navigation menu"
             >
               <Menu className="size-4" aria-hidden="true" />
@@ -101,6 +105,36 @@ export function PublicNavbar({
           ) : null}
         </div>
       </div>
+      {mobileMenuOpen ? (
+        <nav
+          id="public-mobile-navigation"
+          className="border-t border-wv-border px-4 py-4 md:hidden"
+          aria-label="Mobile primary navigation"
+        >
+          <div className="flex flex-col gap-2">
+            {links.map((link) => (
+              <a
+                key={`mobile-${link.href}-${link.label}`}
+                href={link.href}
+                aria-current={link.isActive ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-3 text-sm font-medium text-wv-text-secondary transition-colors hover:bg-wv-background hover:text-wv-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2",
+                  link.isActive && "bg-wv-background text-wv-primary"
+                )}
+              >
+                {link.label}
+              </a>
+            ))}
+            {actions.length > 0 ? (
+              <div className="mt-2 flex flex-col gap-2 border-t border-wv-border pt-3">
+                {actions.map((action) => (
+                  <NavbarAction key={`mobile-${action.label}`} action={action} />
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </nav>
+      ) : null}
     </header>
   );
 }

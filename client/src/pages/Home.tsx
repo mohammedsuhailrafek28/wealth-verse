@@ -1,196 +1,464 @@
+import heroAdvisorConsult from "@/assets/wealthverse/hero-advisor-consult.png";
+import heroBankingSecurity from "@/assets/wealthverse/hero-banking-security.png";
+import heroFamily from "@/assets/wealthverse/hero-family.png";
+import heroMobileBanking from "@/assets/wealthverse/hero-mobile-banking.png";
+import wealthverseLogo from "@/assets/wealthverse/wealthverse-logo.png";
+import { Footer } from "@/components/layout/Footer";
+import { PublicNavbar, type PublicNavLink } from "@/components/layout/PublicNavbar";
 import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/wealth/SectionHeader";
 import { getLoginUrl } from "@/const";
-import { TrendingUp, Target, AlertCircle, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  Bot,
+  CheckCircle2,
+  CircleDollarSign,
+  Landmark,
+  LineChart,
+  LockKeyhole,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  WalletCards,
+} from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+
+const navLinks: PublicNavLink[] = [
+  { label: "Features", href: "#features" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Security", href: "#security" },
+  { label: "Advisor", href: "#advisor" },
+];
+
+const valuePillars = [
+  {
+    title: "Understand your financial health",
+    description:
+      "See savings, spending, debt, emergency readiness, and goals in one clear picture.",
+    icon: <LineChart className="size-5" aria-hidden="true" />,
+  },
+  {
+    title: "See where your money goes",
+    description:
+      "Review category-level spending, unusual expenses, and practical saving opportunities.",
+    icon: <WalletCards className="size-5" aria-hidden="true" />,
+  },
+  {
+    title: "Build achievable goals",
+    description:
+      "Track progress toward goals with contribution signals and realistic next steps.",
+    icon: <Target className="size-5" aria-hidden="true" />,
+  },
+  {
+    title: "Receive explainable recommendations",
+    description:
+      "Review educational recommendations with reasons, risk labels, and suggested actions.",
+    icon: <Sparkles className="size-5" aria-hidden="true" />,
+  },
+];
+
+const howItWorks = [
+  "Understand your current finances through demo-safe account and profile context.",
+  "Identify visible risks, spending patterns, and savings opportunities.",
+  "Plan goals with educational guidance and transparent assumptions.",
+  "Track progress over time as your dashboard, alerts, and advisor context update.",
+];
+
+const productFeatures = [
+  {
+    title: "Financial Health",
+    description:
+      "A simple health score helps users understand overall financial strength without hiding the contributing signals.",
+    icon: <BarChart3 className="size-5" aria-hidden="true" />,
+  },
+  {
+    title: "Spending Insights",
+    description:
+      "Category breakdowns and unusual-expense signals help users spot where attention may be needed.",
+    icon: <CircleDollarSign className="size-5" aria-hidden="true" />,
+  },
+  {
+    title: "Goal Planner",
+    description:
+      "Goal cards show progress, priority, and contribution context for a clearer planning experience.",
+    icon: <Target className="size-5" aria-hidden="true" />,
+  },
+  {
+    title: "Personalized Recommendations",
+    description:
+      "Recommendations are generated from existing profile and transaction signals, with educational disclaimers.",
+    icon: <CheckCircle2 className="size-5" aria-hidden="true" />,
+  },
+  {
+    title: "Avatar Advisor",
+    description:
+      "Explore guidance through an interactive digital advisor experience built around the current WealthContext.",
+    icon: <Bot className="size-5" aria-hidden="true" />,
+  },
+];
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const loginUrl = useMemo(() => getLoginUrl(), []);
+  const authActions = useMemo(
+    () => [
+      {
+        label: "Sign in",
+        href: loginUrl,
+        variant: "primary" as const,
+        ariaLabel: "Sign in to WealthVerse",
+      },
+    ],
+    [loginUrl]
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800">
-      {/* Navigation */}
-      <nav className="border-b border-white/20 bg-white/80 backdrop-blur-md dark:bg-slate-900/80">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
-              <Sparkles className="h-6 w-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">WealthVerse</h1>
-          </div>
-          <a href={getLoginUrl()}>
-            <Button className="bg-blue-600 hover:bg-blue-700">Sign In</Button>
-          </a>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-wv-background text-wv-text">
+      <PublicNavbar
+        logoSrc={wealthverseLogo}
+        links={navLinks}
+        actions={authActions}
+        mobileMenuOpen={mobileMenuOpen}
+        onMobileMenuClick={() => setMobileMenuOpen((open) => !open)}
+        className="sticky top-0 z-40"
+      />
 
-      {/* Hero Section */}
-      <section className="container py-20">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-          {/* Left: Content */}
-          <div className="space-y-8 animate-slide-in-up">
-            <div className="space-y-4">
-              <h2 className="text-5xl font-bold tracking-tight text-foreground">
-                Your AI-Powered Financial Advisor
-              </h2>
-              <p className="text-xl text-muted-foreground">
-                Get personalized wealth guidance, track your financial health, and achieve your goals with intelligent insights tailored to your unique situation.
+      <main>
+        <section className="relative overflow-hidden bg-gradient-to-br from-wv-primary-dark via-wv-primary to-[#13a693] text-white">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.24),transparent_34%)]" />
+          <div className="relative mx-auto grid max-w-[var(--wv-content-width)] items-center gap-10 px-4 py-14 sm:px-6 md:py-18 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:py-20">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-white">
+                <ShieldCheck className="size-4" aria-hidden="true" />
+                Educational wealth intelligence
               </p>
+              <h1 className="mt-6 max-w-3xl font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                Your money, understood clearly.
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-white/82 sm:text-lg">
+                WealthVerse helps users understand financial health, track
+                spending, plan goals, review explainable recommendations, and
+                explore guidance through a digital wealth guide.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  asChild
+                  className="min-h-11 bg-wv-accent px-6 text-white hover:bg-wv-accent-hover"
+                >
+                  <a href={loginUrl} aria-label="Sign in to WealthVerse">
+                    Sign in to WealthVerse
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="min-h-11 border-white/35 bg-white/10 px-6 text-white hover:bg-white/20"
+                >
+                  <a href="#how-it-works">See how it works</a>
+                </Button>
+              </div>
+
+              <div className="mt-8 grid gap-3 text-sm text-white/82 sm:grid-cols-3">
+                <TrustItem>Protected app routes</TrustItem>
+                <TrustItem>Explainable guidance</TrustItem>
+                <TrustItem>No automatic financial actions</TrustItem>
+              </div>
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <a href={getLoginUrl()}>
-                <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-lg">
-                  Get Started
-                </Button>
-              </a>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg">
-                Learn More
+            <div className="relative">
+              <div className="rounded-[var(--wv-radius-card)] border border-white/20 bg-white/12 p-3 shadow-2xl shadow-wv-primary-dark/30 backdrop-blur">
+                <img
+                  src={heroMobileBanking}
+                  width={1030}
+                  height={376}
+                  alt="Mobile banking and wealth dashboard preview"
+                  className="aspect-[1030/376] w-full rounded-[6px] object-cover"
+                  loading="eager"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="py-16 sm:py-20">
+          <div className="mx-auto max-w-[var(--wv-content-width)] px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              eyebrow="Product value"
+              title="A calmer way to understand personal finance"
+              description="The landing experience explains what WealthVerse currently helps users do, without overstating unsupported banking or investment capabilities."
+            />
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {valuePillars.map((pillar) => (
+                <FeatureCard key={pillar.title} {...pillar} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="bg-white py-16 sm:py-20">
+          <div className="mx-auto grid max-w-[var(--wv-content-width)] gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+            <SectionHeader
+              eyebrow="How it works"
+              title="From financial signals to practical next steps"
+              description="WealthVerse keeps the flow understandable: review context, surface insights, explain recommendations, and track progress."
+            />
+            <ol className="grid gap-4">
+              {howItWorks.map((step, index) => (
+                <li
+                  key={step}
+                  className="flex gap-4 rounded-[var(--wv-radius-card)] border border-wv-border bg-wv-background p-5"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-wv-primary text-sm font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <p className="pt-1 text-sm leading-6 text-wv-text-secondary">
+                    {step}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="py-16 sm:py-20">
+          <div className="mx-auto max-w-[var(--wv-content-width)] px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              eyebrow="Currently implemented"
+              title="Product areas built around real demo data"
+              description="These areas map to the existing WealthVerse app and its tRPC-backed demo experience."
+            />
+            <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+              {productFeatures.map((feature) => (
+                <FeatureCard key={feature.title} {...feature} compact />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <ImageStorySection
+          id="security"
+          eyebrow="Security and trust"
+          title="Designed around protected sessions and explainable guidance"
+          description="WealthVerse uses authenticated application routes and local demo-mode fallbacks for development. Recommendations are educational, explainable, and do not execute financial actions automatically."
+          imageSrc={heroBankingSecurity}
+          imageWidth={1120}
+          imageHeight={500}
+          imageAlt="Secure digital banking interface"
+          points={[
+            "Authenticated sessions support protected product routes.",
+            "Financial recommendations include educational safety language.",
+            "Users stay in control: no automatic investing, lending, or banking actions are executed.",
+          ]}
+        />
+
+        <ImageStorySection
+          id="advisor"
+          eyebrow="Digital advisor"
+          title="A guided way to explore your financial context"
+          description="The Avatar Advisor experience helps users ask about financial health, recommendations, spending patterns, and goals using the current WealthContext."
+          imageSrc={heroAdvisorConsult}
+          imageWidth={904}
+          imageHeight={468}
+          imageAlt="Financial advisor consultation interface"
+          reverse
+          points={[
+            "Ask focused questions about the current demo profile.",
+            "Review suggested next actions and educational disclaimers.",
+            "Use the advisor as a guide, not as licensed financial advice.",
+          ]}
+        />
+
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto grid max-w-[var(--wv-content-width)] items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:px-8">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-wv-primary">
+                Goals and progress
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-wv-text">
+                Move from financial information to personal goals
+              </h2>
+              <p className="mt-4 text-base leading-7 text-wv-text-secondary">
+                WealthVerse connects insights to goals so users can understand
+                what to improve this month and what to monitor over time.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <span className="rounded-full bg-wv-background px-4 py-2 text-sm font-semibold text-wv-primary">
+                  Emergency fund
+                </span>
+                <span className="rounded-full bg-wv-background px-4 py-2 text-sm font-semibold text-wv-primary">
+                  Spending habits
+                </span>
+                <span className="rounded-full bg-wv-background px-4 py-2 text-sm font-semibold text-wv-primary">
+                  Goal readiness
+                </span>
+              </div>
+            </div>
+            <img
+              src={heroFamily}
+              width={1038}
+              height={372}
+              alt="Family planning finances together"
+              className="aspect-[1038/372] w-full rounded-[var(--wv-radius-card)] object-cover shadow-wv-card"
+              loading="lazy"
+            />
+          </div>
+        </section>
+
+        <section
+          id="guidance-disclaimer"
+          className="bg-wv-primary-dark px-4 py-14 text-white sm:px-6 lg:px-8"
+        >
+          <div className="mx-auto max-w-4xl text-center">
+            <Landmark className="mx-auto size-10 text-wv-accent" aria-hidden="true" />
+            <h2 className="mt-4 font-display text-3xl font-bold">
+              Start with clarity, then keep improving.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/76 sm:text-base">
+              WealthVerse provides educational financial insights and demo-safe
+              guidance. It does not guarantee outcomes or replace a qualified
+              financial professional.
+            </p>
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button
+                asChild
+                className="min-h-11 bg-wv-accent px-6 text-white hover:bg-wv-accent-hover"
+              >
+                <a href={loginUrl}>Sign in to WealthVerse</a>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="min-h-11 border-white/30 bg-transparent px-6 text-white hover:bg-white/10"
+              >
+                <a href="#features">Review product features</a>
               </Button>
             </div>
-
-            {/* Trust badges */}
-            <div className="flex gap-6 pt-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                  <span className="text-sm font-bold text-green-600 dark:text-green-400">✓</span>
-                </div>
-                <span className="text-sm font-medium">Secure & Private</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                  <span className="text-sm font-bold text-green-600 dark:text-green-400">✓</span>
-                </div>
-                <span className="text-sm font-medium">AI-Powered</span>
-              </div>
-            </div>
           </div>
+        </section>
+      </main>
 
-          {/* Right: Features Preview */}
-          <div className="grid gap-4 sm:grid-cols-2 animate-slide-in-down">
-            {/* Feature Card 1 */}
-            <div className="card-base p-6 space-y-3 hover:shadow-lg transition-shadow">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
-                <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold">Financial Health Score</h3>
-              <p className="text-sm text-muted-foreground">
-                Real-time assessment of your overall financial wellness
-              </p>
-            </div>
-
-            {/* Feature Card 2 */}
-            <div className="card-base p-6 space-y-3 hover:shadow-lg transition-shadow">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900">
-                <Target className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="font-semibold">Goal Planning</h3>
-              <p className="text-sm text-muted-foreground">
-                Set and track financial goals with personalized timelines
-              </p>
-            </div>
-
-            {/* Feature Card 3 */}
-            <div className="card-base p-6 space-y-3 hover:shadow-lg transition-shadow">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900">
-                <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-              </div>
-              <h3 className="font-semibold">Smart Alerts</h3>
-              <p className="text-sm text-muted-foreground">
-                Stay informed with timely notifications about your finances
-              </p>
-            </div>
-
-            {/* Feature Card 4 */}
-            <div className="card-base p-6 space-y-3 hover:shadow-lg transition-shadow">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
-                <Sparkles className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="font-semibold">AI Recommendations</h3>
-              <p className="text-sm text-muted-foreground">
-                Personalized suggestions to optimize your financial strategy
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="border-t border-white/20 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm py-20">
-        <div className="container space-y-12">
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl font-bold">Powerful Features</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to take control of your financial future
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              {
-                title: "Spending Insights",
-                description: "Analyze your spending patterns and identify savings opportunities",
-              },
-              {
-                title: "Investment Tracking",
-                description: "Monitor your investments and get recommendations aligned with your risk profile",
-              },
-              {
-                title: "Avatar Advisor",
-                description: "Interact with your personal AI advisor for personalized financial guidance",
-              },
-              {
-                title: "Goal Tracking",
-                description: "Set multiple financial goals and track progress towards each one",
-              },
-              {
-                title: "Gamification",
-                description: "Earn badges and maintain savings streaks to stay motivated",
-              },
-              {
-                title: "Explainable AI",
-                description: "Understand exactly why each recommendation is made for you",
-              },
-            ].map((feature, i) => (
-              <div key={i} className="card-base p-6 space-y-3">
-                <h3 className="font-semibold text-lg">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="container py-20 text-center space-y-8">
-        <div className="space-y-4">
-          <h2 className="text-4xl font-bold">Ready to Transform Your Finances?</h2>
-          <p className="text-xl text-muted-foreground">
-            Join thousands of users who are taking control of their financial future
-          </p>
-        </div>
-        <a href={getLoginUrl()}>
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8">
-            Start Your Journey Today
-          </Button>
-        </a>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-white/20 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm py-8">
-        <div className="container flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-sm text-muted-foreground">
-            © 2026 WealthVerse. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Terms
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Contact
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer
+        logoSrc={wealthverseLogo}
+        description="WealthVerse is an educational digital wealth experience for understanding financial health, spending, goals, and explainable recommendations."
+        sections={[
+          {
+            title: "Product",
+            links: [
+              { label: "Features", href: "#features" },
+              { label: "How It Works", href: "#how-it-works" },
+              { label: "Advisor", href: "#advisor" },
+            ],
+          },
+          {
+            title: "Trust",
+            links: [
+              { label: "Security", href: "#security" },
+              { label: "Guidance Disclaimer", href: "#guidance-disclaimer" },
+            ],
+          },
+        ]}
+      >
+        <p className="max-w-sm text-xs leading-5 text-white/58">
+          Educational financial guidance only. Legal, privacy, and support
+          pages will be added in later migration phases.
+        </p>
+      </Footer>
     </div>
+  );
+}
+
+function TrustItem({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2">
+      <LockKeyhole className="size-4 shrink-0" aria-hidden="true" />
+      {children}
+    </span>
+  );
+}
+
+function FeatureCard({
+  title,
+  description,
+  icon,
+  compact = false,
+}: {
+  title: string;
+  description: string;
+  icon: ReactNode;
+  compact?: boolean;
+}) {
+  return (
+    <article className="rounded-[var(--wv-radius-card)] border border-wv-border bg-wv-surface p-5 shadow-wv-card">
+      <div className="flex size-11 items-center justify-center rounded-md bg-wv-background text-wv-primary">
+        {icon}
+      </div>
+      <h3 className="mt-4 text-base font-bold text-wv-text">{title}</h3>
+      <p
+        className={`mt-2 text-sm leading-6 text-wv-text-secondary ${compact ? "" : "min-h-24"}`}
+      >
+        {description}
+      </p>
+    </article>
+  );
+}
+
+function ImageStorySection({
+  id,
+  eyebrow,
+  title,
+  description,
+  imageSrc,
+  imageWidth,
+  imageHeight,
+  imageAlt,
+  points,
+  reverse = false,
+}: {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  imageWidth: number;
+  imageHeight: number;
+  imageAlt: string;
+  points: string[];
+  reverse?: boolean;
+}) {
+  return (
+    <section id={id} className="py-16 sm:py-20">
+      <div className="mx-auto grid max-w-[var(--wv-content-width)] items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:px-8">
+        <div className={reverse ? "lg:order-2" : undefined}>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-wv-primary">
+            {eyebrow}
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-wv-text">
+            {title}
+          </h2>
+          <p className="mt-4 text-base leading-7 text-wv-text-secondary">
+            {description}
+          </p>
+          <ul className="mt-6 space-y-3">
+            {points.map((point) => (
+              <li key={point} className="flex gap-3 text-sm leading-6 text-wv-text-secondary">
+                <CheckCircle2 className="mt-1 size-4 shrink-0 text-wv-success" aria-hidden="true" />
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <img
+          src={imageSrc}
+          width={imageWidth}
+          height={imageHeight}
+          alt={imageAlt}
+          className="w-full rounded-[var(--wv-radius-card)] object-cover shadow-wv-card"
+          loading="lazy"
+        />
+      </div>
+    </section>
   );
 }
