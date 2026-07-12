@@ -28,6 +28,7 @@ const navLinks: PublicNavLink[] = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Security", href: "#security" },
   { label: "Advisor", href: "#advisor" },
+  { label: "Support", href: "/support" },
 ];
 
 const valuePillars = [
@@ -360,6 +361,7 @@ export default function Home() {
             title: "Trust",
             links: [
               { label: "Security", href: "#security" },
+              { label: "Support", href: "/support" },
               { label: "Guidance Disclaimer", href: "#guidance-disclaimer" },
             ],
           },

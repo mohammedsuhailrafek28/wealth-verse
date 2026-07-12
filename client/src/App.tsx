@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Support from "./pages/Support";
 import Dashboard from "./pages/Dashboard";
 import SpendingInsights from "./pages/SpendingInsights";
 import GoalPlanner from "./pages/GoalPlanner";
@@ -59,6 +60,7 @@ function Router() {
   if (location === "/") return isAuthenticated ? <Dashboard /> : <Home />;
   if (location === "/login") return <Login />;
   if (location === "/signup") return <Signup />;
+  if (location === "/support") return <Support />;
   if (location === "/dashboard") return <Dashboard />;
   if (location === "/spending") return <SpendingInsights />;
   if (location === "/goals") return <GoalPlanner />;

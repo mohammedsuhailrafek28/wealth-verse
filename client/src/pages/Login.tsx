@@ -167,7 +167,14 @@ export default function Login() {
 
                   <p className="text-center text-xs leading-5 text-wv-muted">
                     Password, OTP, password reset, and standalone signup are not
-                    available in this prototype yet.
+                    available in this prototype yet. Need help?{" "}
+                    <a
+                      href="/support"
+                      className="font-semibold text-wv-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2"
+                    >
+                      Visit Support
+                    </a>
+                    .
                   </p>
                 </div>
               </AuthCard>
