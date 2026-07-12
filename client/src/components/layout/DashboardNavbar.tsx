@@ -9,14 +9,23 @@ export type DashboardNavLink = {
   isActive?: boolean;
 };
 
+export type DashboardProfileOption = {
+  id: number;
+  label: string;
+};
+
 export type DashboardNavbarProps = {
   logoSrc?: string;
   brandName?: string;
   links: DashboardNavLink[];
   userName?: string;
   profileLabel?: string;
-  onProfileSwitch?: () => void;
+  profileOptions?: DashboardProfileOption[];
+  activeProfileId?: number | null;
+  onProfileChange?: (profileId: number) => void;
+  profileSwitchDisabled?: boolean;
   onLogout?: () => void;
+  mobileMenuOpen?: boolean;
   onMobileMenuClick?: () => void;
   className?: string;
   children?: ReactNode;
@@ -28,8 +37,12 @@ export function DashboardNavbar({
   links,
   userName,
   profileLabel,
-  onProfileSwitch,
+  profileOptions = [],
+  activeProfileId,
+  onProfileChange,
+  profileSwitchDisabled = false,
   onLogout,
+  mobileMenuOpen = false,
   onMobileMenuClick,
   className,
   children,
@@ -78,21 +91,15 @@ export function DashboardNavbar({
 
         <div className="ml-auto flex items-center gap-2">
           {children}
-          {profileLabel || userName ? (
-            <button
-              type="button"
-              onClick={onProfileSwitch}
-              className="hidden rounded-md border border-white/25 px-3 py-2 text-left transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark sm:block"
-              aria-label={onProfileSwitch ? "Switch profile" : "Current profile"}
-            >
-              <span className="block text-xs text-white/65">
-                {profileLabel ?? "Profile"}
-              </span>
-              <span className="block max-w-40 truncate text-sm font-semibold">
-                {userName ?? "Demo User"}
-              </span>
-            </button>
-          ) : null}
+          <ProfileControl
+            userName={userName}
+            profileLabel={profileLabel}
+            profileOptions={profileOptions}
+            activeProfileId={activeProfileId}
+            onProfileChange={onProfileChange}
+            disabled={profileSwitchDisabled}
+            className="hidden sm:block"
+          />
           {onLogout ? (
             <Button
               type="button"
@@ -112,6 +119,8 @@ export function DashboardNavbar({
               size="icon"
               className="border-white/30 bg-transparent text-white hover:bg-white/10 lg:hidden"
               onClick={onMobileMenuClick}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="dashboard-mobile-navigation"
               aria-label="Open dashboard navigation"
             >
               <Menu className="size-4" aria-hidden="true" />
@@ -119,6 +128,94 @@ export function DashboardNavbar({
           ) : null}
         </div>
       </div>
+      {mobileMenuOpen ? (
+        <nav
+          id="dashboard-mobile-navigation"
+          className="border-t border-white/15 px-4 py-4 lg:hidden"
+          aria-label="Mobile dashboard navigation"
+        >
+          <div className="flex flex-col gap-2">
+            {links.map((link) => (
+              <a
+                key={`mobile-${link.href}-${link.label}`}
+                href={link.href}
+                aria-current={link.isActive ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-3 text-sm font-semibold text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark",
+                  link.isActive && "bg-white/12 text-white"
+                )}
+              >
+                {link.label}
+              </a>
+            ))}
+            <ProfileControl
+              userName={userName}
+              profileLabel={profileLabel}
+              profileOptions={profileOptions}
+              activeProfileId={activeProfileId}
+              onProfileChange={onProfileChange}
+              disabled={profileSwitchDisabled}
+              className="mt-2"
+            />
+          </div>
+        </nav>
+      ) : null}
     </header>
+  );
+}
+
+function ProfileControl({
+  userName,
+  profileLabel,
+  profileOptions,
+  activeProfileId,
+  onProfileChange,
+  disabled,
+  className,
+}: {
+  userName?: string;
+  profileLabel?: string;
+  profileOptions: DashboardProfileOption[];
+  activeProfileId?: number | null;
+  onProfileChange?: (profileId: number) => void;
+  disabled: boolean;
+  className?: string;
+}) {
+  if (profileOptions.length > 0 && onProfileChange) {
+    return (
+      <label className={cn("block", className)}>
+        <span className="sr-only">Active profile</span>
+        <select
+          value={activeProfileId ?? ""}
+          disabled={disabled}
+          onChange={(event) => onProfileChange(Number(event.target.value))}
+          className="min-h-10 max-w-48 rounded-md border border-white/25 bg-wv-primary-dark px-3 py-2 text-sm font-semibold text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark disabled:cursor-not-allowed disabled:opacity-70"
+          aria-label="Switch active profile"
+        >
+          {profileOptions.map((profile) => (
+            <option key={profile.id} value={profile.id} className="bg-white text-wv-text">
+              {profile.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+
+  if (!profileLabel && !userName) return null;
+
+  return (
+    <div
+      className={cn(
+        "rounded-md border border-white/25 px-3 py-2 text-left",
+        className
+      )}
+      aria-label="Current profile"
+    >
+      <span className="block text-xs text-white/65">{profileLabel ?? "Profile"}</span>
+      <span className="block max-w-40 truncate text-sm font-semibold">
+        {userName ?? "Demo User"}
+      </span>
+    </div>
   );
 }

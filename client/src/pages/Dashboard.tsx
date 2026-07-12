@@ -1,281 +1,649 @@
-import { useEffect, useState } from "react";
-import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
+import wealthverseLogo from "@/assets/wealthverse/wealthverse-logo.png";
+import { DashboardNavbar, type DashboardNavLink } from "@/components/layout/DashboardNavbar";
+import { AlertCard } from "@/components/wealth/AlertCard";
+import { EmptyState } from "@/components/wealth/EmptyState";
+import { ErrorState } from "@/components/wealth/ErrorState";
+import { FinancialMetricCard } from "@/components/wealth/FinancialMetricCard";
+import { GoalCard } from "@/components/wealth/GoalCard";
+import { HealthScoreCard } from "@/components/wealth/HealthScoreCard";
+import { LoadingSkeleton } from "@/components/wealth/LoadingSkeleton";
+import { ProfileHero } from "@/components/wealth/ProfileHero";
+import { QuickActionRail, type QuickAction } from "@/components/wealth/QuickActionRail";
+import { RecommendationCard } from "@/components/wealth/RecommendationCard";
+import { SectionHeader } from "@/components/wealth/SectionHeader";
+import { TransactionList } from "@/components/wealth/TransactionList";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, Target, AlertCircle, Zap, Award } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import {
+  formatCompactCurrencyINR,
+  formatCurrencyINR,
+  formatPercentage,
+  formatTitle,
+} from "@/lib/formatters";
+import { useAuth } from "@/_core/hooks/useAuth";
+import {
+  AlertTriangle,
+  BadgeCheck,
+  Bell,
+  Bot,
+  CircleDollarSign,
+  CreditCard,
+  Goal,
+  Landmark,
+  Lightbulb,
+  LogOut,
+  PiggyBank,
+  ReceiptText,
+  ShieldCheck,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  WalletCards,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 
+const dashboardLinks: DashboardNavLink[] = [
+  { label: "Dashboard", href: "/dashboard", isActive: true },
+  { label: "Spending", href: "/spending" },
+  { label: "Goals", href: "/goals" },
+  { label: "Recommendations", href: "/recommendations" },
+  { label: "Advisor", href: "/avatar" },
+];
+
+const quickActions: QuickAction[] = [
+  {
+    label: "View spending",
+    description: "Open cashflow detail",
+    href: "/spending",
+    icon: ReceiptText,
+  },
+  {
+    label: "Review goals",
+    description: "Track progress",
+    href: "/goals",
+    icon: Target,
+  },
+  {
+    label: "Recommendations",
+    description: "See next actions",
+    href: "/recommendations",
+    icon: Lightbulb,
+  },
+  {
+    label: "Ask advisor",
+    description: "Open WealthBot",
+    href: "/avatar",
+    icon: Bot,
+  },
+];
+
 export default function Dashboard() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
+  const utils = trpc.useUtils();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const profilesQuery = trpc.profiles.list.useQuery();
-  const activeProfileQuery = trpc.profiles.getActive.useQuery();
-  const dashboardQuery = trpc.dashboard.getSummary.useQuery(undefined, {
-    enabled: !!selectedProfileId || !!activeProfileQuery.data,
+  const profilesQuery = trpc.profiles.list.useQuery(undefined, {
+    refetchOnWindowFocus: false,
   });
+  const activeProfileQuery = trpc.profiles.getActive.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchOnWindowFocus: false,
+  });
+  const dashboardQuery = trpc.dashboard.getSummary.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const wealthContextQuery = trpc.wealth.getContext.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const predictionsQuery = trpc.wealth.getPredictions.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const goalsQuery = trpc.goals.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const alertsQuery = trpc.alerts.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const transactionsQuery = trpc.transactions.recent.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const eventTimelineQuery = trpc.wealth.getEventTimeline.useQuery(
+    { limit: 3 },
+    { enabled: isAuthenticated }
+  );
+  const notificationsQuery = trpc.wealth.getNotifications.useQuery(
+    { limit: 3, status: "unread" },
+    { enabled: isAuthenticated }
+  );
 
-  const setProfileMutation = trpc.profiles.setActive.useMutation({
-    onSuccess: () => {
-      dashboardQuery.refetch();
+  const setActiveProfileMutation = trpc.profiles.setActive.useMutation({
+    onSuccess: async () => {
+      await Promise.all([
+        utils.profiles.getActive.invalidate(),
+        utils.dashboard.getSummary.invalidate(),
+        utils.wealth.getContext.invalidate(),
+        utils.wealth.getPredictions.invalidate(),
+        utils.goals.list.invalidate(),
+        utils.alerts.list.invalidate(),
+        utils.transactions.recent.invalidate(),
+        utils.wealth.getEventTimeline.invalidate(),
+        utils.wealth.getNotifications.invalidate(),
+      ]);
     },
   });
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation("/");
-    }
-  }, [isAuthenticated, setLocation]);
+    if (!authLoading && !isAuthenticated) setLocation("/");
+  }, [authLoading, isAuthenticated, setLocation]);
 
-  useEffect(() => {
-    if (activeProfileQuery.data && !selectedProfileId) {
-      setSelectedProfileId(activeProfileQuery.data.id);
-    }
-  }, [activeProfileQuery.data, selectedProfileId]);
+  const profileOptions = useMemo(
+    () =>
+      (profilesQuery.data ?? []).map((profile) => ({
+        id: profile.id,
+        label: profile.name,
+      })),
+    [profilesQuery.data]
+  );
+
+  const isPrimaryLoading =
+    authLoading ||
+    activeProfileQuery.isLoading ||
+    dashboardQuery.isLoading ||
+    wealthContextQuery.isLoading;
+  const isSwitchingProfile = setActiveProfileMutation.isPending;
+  const hasPrimaryError =
+    dashboardQuery.isError ||
+    wealthContextQuery.isError ||
+    activeProfileQuery.isError ||
+    profilesQuery.isError;
+
+  const retryDashboard = async () => {
+    await Promise.all([
+      profilesQuery.refetch(),
+      activeProfileQuery.refetch(),
+      dashboardQuery.refetch(),
+      wealthContextQuery.refetch(),
+      predictionsQuery.refetch(),
+      goalsQuery.refetch(),
+      alertsQuery.refetch(),
+      transactionsQuery.refetch(),
+    ]);
+  };
+
+  const handleProfileChange = (profileId: number) => {
+    if (!profileId || profileId === activeProfileQuery.data?.id) return;
+    setActiveProfileMutation.mutate({ demoProfileId: profileId });
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setLocation("/");
+  };
+
+  if (authLoading) {
+    return (
+      <DashboardFrame
+        userName={user?.name ?? "Demo User"}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+        onLogout={handleLogout}
+      >
+        <LoadingSkeleton variant="page-section" />
+      </DashboardFrame>
+    );
+  }
 
   if (!isAuthenticated) return null;
 
-  const handleProfileChange = (profileId: string) => {
-    const id = parseInt(profileId);
-    setSelectedProfileId(id);
-    setProfileMutation.mutate({ demoProfileId: id });
-  };
+  if (hasPrimaryError) {
+    return (
+      <DashboardFrame
+        userName={user?.name ?? "Demo User"}
+        profileOptions={profileOptions}
+        activeProfileId={activeProfileQuery.data?.id ?? null}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+        onProfileChange={handleProfileChange}
+        onLogout={handleLogout}
+      >
+        <ErrorState
+          title="Dashboard could not load"
+          message="We could not load the dashboard safely. Retry the demo data request or check local app configuration."
+          onRetry={retryDashboard}
+        />
+      </DashboardFrame>
+    );
+  }
+
+  if (profilesQuery.data && profilesQuery.data.length === 0) {
+    return (
+      <DashboardFrame
+        userName={user?.name ?? "Demo User"}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+        onLogout={handleLogout}
+      >
+        <EmptyState
+          title="No demo profiles available"
+          description="Add or seed a demo profile to populate the WealthVerse dashboard."
+        />
+      </DashboardFrame>
+    );
+  }
 
   const data = dashboardQuery.data;
-  const isLoading = dashboardQuery.isLoading;
-  const apiError = profilesQuery.error || activeProfileQuery.error || dashboardQuery.error;
+  const wealth = wealthContextQuery.data;
 
-  // Score color mapping
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600 dark:text-green-400";
-    if (score >= 60) return "text-blue-600 dark:text-blue-400";
-    if (score >= 40) return "text-yellow-600 dark:text-yellow-400";
-    return "text-red-600 dark:text-red-400";
-  };
+  if (isPrimaryLoading || !data || !wealth || isSwitchingProfile) {
+    return (
+      <DashboardFrame
+        userName={user?.name ?? "Demo User"}
+        profileLabel={activeProfileQuery.data?.name ?? "Loading profile"}
+        profileOptions={profileOptions}
+        activeProfileId={activeProfileQuery.data?.id ?? null}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+        onProfileChange={handleProfileChange}
+        onLogout={handleLogout}
+        profileSwitchDisabled
+      >
+        <LoadingSkeleton variant="page-section" />
+      </DashboardFrame>
+    );
+  }
 
-  const getScoreBgColor = (score: number) => {
-    if (score >= 80) return "bg-green-100 dark:bg-green-900";
-    if (score >= 60) return "bg-blue-100 dark:bg-blue-900";
-    if (score >= 40) return "bg-yellow-100 dark:bg-yellow-900";
-    return "bg-red-100 dark:bg-red-900";
-  };
+  const predictions = predictionsQuery.data;
+  const goals = goalsQuery.data ?? [];
+  const alerts = alertsQuery.data ?? [];
+  const transactions = (transactionsQuery.data ?? []).slice(0, 5);
+  const timeline = eventTimelineQuery.data ?? [];
+  const notifications = notificationsQuery.data ?? [];
+  const profile = data.profile;
+  const topInsight = wealth.insights[0];
+  const topAlert =
+    wealth.alerts.find((alert) => alert.severity === "high") ??
+    wealth.alerts.find((alert) => alert.severity === "medium") ??
+    wealth.alerts[0];
+  const nextBestAction =
+    topAlert?.suggestedAction ??
+    wealth.recommendations[0]?.nextAction ??
+    wealth.insights[0]?.suggestedAction ??
+    "Review your spending, goals, and recommendations this month.";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-white/20 bg-white/80 backdrop-blur-md dark:bg-slate-900/80">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
-              <Zap className="h-6 w-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold">WealthVerse</h1>
-          </div>
+    <DashboardFrame
+      userName={user?.name ?? "Demo User"}
+      profileLabel={profile.name}
+      profileOptions={profileOptions}
+      activeProfileId={activeProfileQuery.data?.id ?? null}
+      mobileMenuOpen={mobileMenuOpen}
+      setMobileMenuOpen={setMobileMenuOpen}
+      onProfileChange={handleProfileChange}
+      onLogout={handleLogout}
+      profileSwitchDisabled={isSwitchingProfile}
+    >
+      <div className="space-y-6">
+        <ProfileHero
+          profileName={profile.name}
+          occupation={profile.occupation}
+          riskProfile={wealth.riskProfile.profile ?? profile.riskProfile}
+          summary={`Your monthly surplus is ${formatCurrencyINR(wealth.monthlySurplus)} with a ${formatPercentage(data.savingsRate)} savings rate.`}
+          insight={topInsight?.title ?? nextBestAction}
+          onAskAdvisor={() => setLocation("/avatar")}
+        />
 
-          <div className="flex items-center gap-4">
-            <div className="w-48">
-              <Select value={selectedProfileId?.toString() || ""} onValueChange={handleProfileChange}>
-                <SelectTrigger className="bg-white dark:bg-slate-800">
-                  <SelectValue placeholder="Select Profile" />
-                </SelectTrigger>
-                <SelectContent>
-                  {profilesQuery.data?.map((profile) => (
-                    <SelectItem key={profile.id} value={profile.id.toString()}>
-                      {profile.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <QuickActionRail actions={quickActions} />
 
-            <Button variant="outline" size="sm">
-              {user?.name || "User"}
-            </Button>
-          </div>
-        </div>
-      </header>
+        <section className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
+          <HealthScoreCard
+            score={data.financialHealth.overallScore}
+            category={data.financialHealth.category}
+            description="Educational score based on savings, investments, debt, and emergency-fund readiness. It is not a regulated credit score."
+            projection={
+              predictions
+                ? `90-day projection: ${predictions.healthForecast.projected90DayScore}/100, ${predictions.healthForecast.direction}`
+                : undefined
+            }
+            breakdown={[
+              {
+                label: "Savings",
+                score: data.financialHealth.savingsScore,
+                description: "Reflects current savings rate and surplus capacity.",
+              },
+              {
+                label: "Investments",
+                score: data.financialHealth.investmentScore,
+                description: "Reflects investment balance and readiness signals.",
+              },
+              {
+                label: "Debt",
+                score: data.financialHealth.debtScore,
+                description: "Reflects credit-card debt pressure.",
+              },
+              {
+                label: "Emergency fund",
+                score: data.financialHealth.emergencyFundScore,
+                description: "Reflects available emergency-fund coverage.",
+              },
+            ]}
+          />
 
-      {/* Main Content */}
-      <main className="container py-8 space-y-8">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Spinner />
-          </div>
-        ) : apiError ? (
-          <Card className="card-base p-8 space-y-3">
-            <h2 className="text-2xl font-bold">Unable to load dashboard</h2>
-            <p className="text-muted-foreground">
-              {apiError.message || "Check your DATABASE_URL or enable WEALTHVERSE_DEMO_MODE=true for local demo data."}
+          <section
+            className="rounded-[var(--wv-radius-card)] border border-wv-border bg-wv-surface p-5 shadow-wv-card"
+            aria-labelledby="next-action-title"
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-wv-primary">
+              AI-guided priority
             </p>
-          </Card>
-        ) : profilesQuery.data && profilesQuery.data.length === 0 ? (
-          <Card className="card-base p-8 space-y-3">
-            <h2 className="text-2xl font-bold">No demo profiles found</h2>
-            <p className="text-muted-foreground">
-              Seed demo data into the database, or run with WEALTHVERSE_DEMO_MODE=true to use built-in local demo data.
+            <h2 id="next-action-title" className="mt-3 text-xl font-bold text-wv-text">
+              {nextBestAction}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-wv-text-secondary">
+              Based on current alerts, insights, recommendations, and risk profile.
             </p>
-          </Card>
-        ) : data ? (
-          <>
-            {/* Welcome Section */}
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold">Welcome back, {data.profile.name}!</h2>
-              <p className="text-muted-foreground">
-                {data.profile.age} years old • {data.profile.occupation} • {data.profile.riskProfile} risk profile
-              </p>
-            </div>
-
-            {/* Financial Health Score */}
-            <div className="grid gap-6 lg:grid-cols-4">
-              <Card className="card-base p-6 space-y-4 lg:col-span-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-muted-foreground">Financial Health</h3>
-                  <TrendingUp className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div className={`flex items-center gap-4 ${getScoreBgColor(data.financialHealth.overallScore)} rounded-lg p-4`}>
-                  <div className={`text-5xl font-bold ${getScoreColor(data.financialHealth.overallScore)}`}>
-                    {data.financialHealth.overallScore}
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium capitalize">{data.financialHealth.category}</p>
-                    <p className="text-xs text-muted-foreground">Out of 100</p>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Key Metrics */}
-              <Card className="card-base p-6 space-y-4">
-                <h3 className="font-semibold text-muted-foreground">Monthly Income</h3>
-                <p className="text-3xl font-bold">₹{data.monthlyIncome.toLocaleString("en-IN")}</p>
-              </Card>
-
-              <Card className="card-base p-6 space-y-4">
-                <h3 className="font-semibold text-muted-foreground">Monthly Expenses</h3>
-                <p className="text-3xl font-bold">₹{data.monthlyExpenses.toLocaleString("en-IN")}</p>
-              </Card>
-
-              <Card className="card-base p-6 space-y-4">
-                <h3 className="font-semibold text-muted-foreground">Savings Rate</h3>
-                <p className="text-3xl font-bold">{data.savingsRate.toFixed(1)}%</p>
-              </Card>
-            </div>
-
-            {/* Score Breakdown */}
-            <div className="grid gap-6 lg:grid-cols-5">
-              {[
-                { label: "Savings", score: data.financialHealth.savingsScore },
-                { label: "Investment", score: data.financialHealth.investmentScore },
-                { label: "Debt", score: data.financialHealth.debtScore },
-                { label: "Emergency Fund", score: data.financialHealth.emergencyFundScore },
-              ].map((item) => (
-                <Card key={item.label} className="card-base p-4 space-y-3">
-                  <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl font-bold">{item.score}</div>
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-                      {Math.round((item.score / 25) * 100)}%
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {/* Top Recommendations */}
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold">Top Recommendations</h3>
-              <div className="grid gap-4">
-                {data.topRecommendations.map((rec, i) => (
-                  <Card key={i} className="card-base p-6 space-y-4 border-l-4 border-l-blue-600">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2 flex-1">
-                        <h4 className="font-semibold text-lg">{rec.recommendation}</h4>
-                        <p className="text-muted-foreground">{rec.expectedBenefit}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className={`badge-base ${rec.riskLevel === "low" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : rec.riskLevel === "moderate" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300" : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"}`}>
-                          {rec.riskLevel}
-                        </span>
-                        <span className="badge-base bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                          {rec.confidenceScore}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Why this was suggested:</p>
-                      <ul className="space-y-1">
-                        {rec.reasons.map((reason, j) => (
-                          <li key={j} className="text-sm text-muted-foreground flex gap-2">
-                            <span className="text-blue-600">•</span>
-                            {reason}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </Card>
-                ))}
+            {predictions ? (
+              <div className="mt-5 rounded-[var(--wv-radius-form)] bg-wv-background p-4">
+                <p className="text-sm font-bold text-wv-text">
+                  {predictions.monthlyOutlook.monthLabel} outlook
+                </p>
+                <p className="mt-1 text-sm leading-6 text-wv-text-secondary">
+                  {predictions.monthlyOutlook.forecastSummary}
+                </p>
               </div>
-            </div>
+            ) : null}
+            <Button
+              asChild
+              className="mt-5 min-h-11 bg-wv-accent text-white hover:bg-wv-accent-hover"
+            >
+              <a href="/avatar">Ask advisor why</a>
+            </Button>
+          </section>
+        </section>
 
-            {/* Quick Actions */}
-            <div className="grid gap-4 md:grid-cols-4">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setLocation("/spending")}>
-                View Spending
-              </Button>
-              <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={() => setLocation("/goals")}>
-                Plan Goals
-              </Button>
-              <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => setLocation("/recommendations")}>
-                All Recommendations
-              </Button>
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => setLocation("/avatar")}>
-                Avatar Advisor
-              </Button>
-            </div>
+        <section aria-labelledby="metrics-heading">
+          <SectionHeader
+            title="Account overview"
+            description="Demo banking-style view of income, expenses, savings, investments, emergency fund, and credit-card debt."
+            headingLevel={2}
+          />
+          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <FinancialMetricCard
+              title="Monthly income"
+              value={formatCurrencyINR(data.monthlyIncome)}
+              subtitle="Active profile income"
+              trend="Income"
+              trendDirection="up"
+              icon={<Landmark className="size-5" aria-hidden="true" />}
+            />
+            <FinancialMetricCard
+              title="Monthly expenses"
+              value={formatCurrencyINR(data.monthlyExpenses)}
+              subtitle="Current monthly outflow"
+              trend="Expense"
+              trendDirection="down"
+              icon={<CreditCard className="size-5" aria-hidden="true" />}
+            />
+            <FinancialMetricCard
+              title="Savings rate"
+              value={formatPercentage(data.savingsRate)}
+              subtitle="Share of monthly income saved"
+              trend="Savings"
+              trendDirection="up"
+              icon={<PiggyBank className="size-5" aria-hidden="true" />}
+            />
+            <FinancialMetricCard
+              title="Investments"
+              value={formatCompactCurrencyINR(data.investmentBalance)}
+              subtitle="Investment balance in demo profile"
+              trend="Portfolio"
+              trendDirection="flat"
+              icon={<TrendingUp className="size-5" aria-hidden="true" />}
+            />
+          </div>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <FinancialMetricCard
+              title="Emergency fund"
+              value={formatCurrencyINR(data.emergencyFundBalance)}
+              subtitle="Available emergency reserve"
+              trend="Safety buffer"
+              trendDirection="flat"
+              icon={<ShieldCheck className="size-5" aria-hidden="true" />}
+            />
+            <FinancialMetricCard
+              title="Credit-card debt"
+              value={formatCurrencyINR(data.creditCardDebt)}
+              subtitle="Debt to monitor before increasing risk"
+              trend="Liability"
+              trendDirection={data.creditCardDebt > 0 ? "down" : "flat"}
+              icon={<TrendingDown className="size-5" aria-hidden="true" />}
+            />
+          </div>
+        </section>
 
-            {/* Gamification */}
-            {(data.savingsStreak > 0 || data.badges.length > 0) && (
-              <Card className="card-base p-6 space-y-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Award className="h-5 w-5 text-amber-600" />
-                  Achievements
-                </h3>
-                <div className="space-y-4">
-                  {data.savingsStreak > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg">
-                      <div>
-                        <p className="font-medium">Savings Streak</p>
-                        <p className="text-sm text-muted-foreground">{data.savingsStreak} months</p>
-                      </div>
-                      <div className="text-2xl">🔥</div>
-                    </div>
-                  )}
-                  {data.badges.map((badge, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg">
-                      <div>
-                        <p className="font-medium">{badge.title}</p>
-                        <p className="text-sm text-muted-foreground">{badge.description}</p>
-                      </div>
-                      <div className="text-2xl">⭐</div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-          </>
-        ) : (
-          <Card className="card-base p-8 space-y-3">
-            <h2 className="text-2xl font-bold">No dashboard data available</h2>
-            <p className="text-muted-foreground">
-              Select a demo profile or verify that demo data is available.
-            </p>
-          </Card>
-        )}
+        <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <section aria-labelledby="recommendations-heading">
+            <SectionHeader
+              title="Recommendations preview"
+              description="Top explainable recommendations from the current profile."
+              action={
+                <Button asChild variant="outline" className="border-wv-border text-wv-text">
+                  <a href="/recommendations">View all</a>
+                </Button>
+              }
+            />
+            <div className="mt-4 grid gap-4">
+              {data.topRecommendations.length > 0 ? (
+                data.topRecommendations.slice(0, 3).map((recommendation) => (
+                  <RecommendationCard
+                    key={`${recommendation.category}-${recommendation.recommendation}`}
+                    title={recommendation.recommendation}
+                    category={recommendation.category}
+                    expectedBenefit={recommendation.expectedBenefit}
+                    riskLevel={recommendation.riskLevel}
+                    confidenceScore={recommendation.confidenceScore}
+                    reasons={recommendation.reasons}
+                  />
+                ))
+              ) : (
+                <EmptyState
+                  title="No recommendations yet"
+                  description="Recommendations will appear when enough profile context is available."
+                />
+              )}
+            </div>
+          </section>
+
+          <section aria-labelledby="goals-heading">
+            <SectionHeader
+              title="Goals preview"
+              description="Priority goals from the active profile."
+              action={
+                <Button asChild variant="outline" className="border-wv-border text-wv-text">
+                  <a href="/goals">View all goals</a>
+                </Button>
+              }
+            />
+            <div className="mt-4 grid gap-4">
+              {goals.length > 0 ? (
+                goals.slice(0, 3).map((goal) => (
+                  <GoalCard
+                    key={goal.id}
+                    title={goal.goalType}
+                    currentAmount={goal.currentAmount}
+                    targetAmount={goal.targetAmount}
+                    priority={goal.priority}
+                    monthlyContribution={goal.monthlyContribution}
+                  />
+                ))
+              ) : (
+                <EmptyState
+                  title="No goals available"
+                  description="Goal cards will appear when the active profile has goal data."
+                />
+              )}
+            </div>
+          </section>
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <section aria-labelledby="alerts-heading">
+            <SectionHeader
+              title="Alerts"
+              description="Important profile signals to review."
+            />
+            <div className="mt-4 grid gap-4">
+              {alerts.length > 0 ? (
+                alerts.slice(0, 3).map((alert) => (
+                  <AlertCard
+                    key={alert.id}
+                    title={alert.title}
+                    message={alert.message}
+                    severity={alert.severity}
+                    isRead={alert.isRead}
+                    createdAt={alert.createdAt}
+                  />
+                ))
+              ) : (
+                <EmptyState
+                  icon={<Bell className="size-6" aria-hidden="true" />}
+                  title="No active financial alerts"
+                  description="There are no current dashboard alerts for this profile."
+                />
+              )}
+            </div>
+          </section>
+
+          <section aria-labelledby="transactions-heading">
+            <SectionHeader
+              title="Recent transactions"
+              description="Latest activity from the active demo profile."
+            />
+            <div className="mt-4">
+              {transactions.length > 0 ? (
+                <TransactionList transactions={transactions} />
+              ) : (
+                <EmptyState
+                  title="No recent transactions"
+                  description="Transactions will appear when data exists for the active profile."
+                />
+              )}
+            </div>
+          </section>
+        </div>
+
+        <section className="grid gap-4 lg:grid-cols-3" aria-label="Secondary dashboard signals">
+          <SecondaryPanel
+            title="Savings streak"
+            value={`${data.savingsStreak} months`}
+            description="A lightweight habit signal from the demo profile."
+            icon={<BadgeCheck className="size-5" aria-hidden="true" />}
+          />
+          <SecondaryPanel
+            title="Badges"
+            value={`${data.badges.length}`}
+            description={
+              data.badges[0]?.title ??
+              "Badges appear when the active profile has achievement data."
+            }
+            icon={<Goal className="size-5" aria-hidden="true" />}
+          />
+          <SecondaryPanel
+            title="Activity and notifications"
+            value={`${timeline.length + notifications.length}`}
+            description="Latest event and unread-notification signals loaded for this session."
+            icon={<AlertTriangle className="size-5" aria-hidden="true" />}
+          />
+        </section>
+
+        <footer className="flex flex-col gap-3 border-t border-wv-border pt-5 text-xs leading-5 text-wv-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            WealthVerse provides educational financial insights and does not guarantee
+            financial or investment outcomes.
+          </p>
+          <a
+            href="/support"
+            className="font-semibold text-wv-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2"
+          >
+            Support
+          </a>
+        </footer>
+      </div>
+    </DashboardFrame>
+  );
+}
+
+function DashboardFrame({
+  children,
+  userName,
+  profileLabel,
+  profileOptions = [],
+  activeProfileId,
+  mobileMenuOpen,
+  setMobileMenuOpen,
+  onProfileChange,
+  onLogout,
+  profileSwitchDisabled = false,
+}: {
+  children: React.ReactNode;
+  userName: string;
+  profileLabel?: string;
+  profileOptions?: { id: number; label: string }[];
+  activeProfileId?: number | null;
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: (open: boolean | ((current: boolean) => boolean)) => void;
+  onProfileChange?: (profileId: number) => void;
+  onLogout: () => void;
+  profileSwitchDisabled?: boolean;
+}) {
+  return (
+    <div className="min-h-screen bg-wv-background text-wv-text">
+      <DashboardNavbar
+        logoSrc={wealthverseLogo}
+        links={dashboardLinks}
+        userName={userName}
+        profileLabel={profileLabel}
+        profileOptions={profileOptions}
+        activeProfileId={activeProfileId}
+        onProfileChange={onProfileChange}
+        profileSwitchDisabled={profileSwitchDisabled}
+        mobileMenuOpen={mobileMenuOpen}
+        onMobileMenuClick={() => setMobileMenuOpen((open) => !open)}
+        onLogout={onLogout}
+      />
+      <main className="mx-auto max-w-[var(--wv-content-width)] px-4 py-6 sm:px-6 lg:px-8">
+        {children}
       </main>
     </div>
+  );
+}
+
+function SecondaryPanel({
+  title,
+  value,
+  description,
+  icon,
+}: {
+  title: string;
+  value: string;
+  description: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <article className="rounded-[var(--wv-radius-card)] border border-wv-border bg-wv-surface p-5 shadow-wv-card">
+      <div className="flex items-start gap-4">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-wv-background text-wv-primary">
+          {icon}
+        </div>
+        <div>
+          <h2 className="text-sm font-bold text-wv-text-secondary">{title}</h2>
+          <p className="mt-1 text-2xl font-bold text-wv-text">{value}</p>
+          <p className="mt-2 text-sm leading-6 text-wv-text-secondary">
+            {description}
+          </p>
+        </div>
+      </div>
+    </article>
   );
 }
