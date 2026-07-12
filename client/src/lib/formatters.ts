@@ -37,3 +37,7 @@ export function formatTitle(value: string | null | undefined): string {
     .trim()
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
+
+export function normalizeFinancialText(value: string): string {
+  return value.replaceAll("\u00e2\u201a\u00b9", "₹").replaceAll("\u00c2\u00b7", "·");
+}
