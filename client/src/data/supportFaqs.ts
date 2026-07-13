@@ -228,6 +228,6 @@ export const supportFaqs: FaqItem[] = [
     category: "getting-started",
     question: "Where should I start?",
     answer:
-      "Start from the landing page, use Get started or Sign in, then explore the dashboard, spending insights, goals, recommendations, and Avatar Advisor.",
+      "Start from the landing page, choose Start Interactive Demo, select a persona, then explore the dashboard, spending insights, goals, recommendations, and Avatar Advisor.",
   },
 ];

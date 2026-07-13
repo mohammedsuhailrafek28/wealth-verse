@@ -166,7 +166,7 @@ export default function Login() {
                     variant="outline"
                     className="min-h-11 w-full border-wv-border text-wv-text hover:bg-wv-background"
                   >
-                    <a href="/signup">New to WealthVerse? Get started</a>
+                    <a href="/choose-profile">New to WealthVerse? Start Interactive Demo</a>
                   </Button>
 
                   <p className="text-center text-xs leading-5 text-wv-muted">

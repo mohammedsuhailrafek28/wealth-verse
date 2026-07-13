@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LogOut, Menu, UserRound } from "lucide-react";
+import { LogOut, Menu, RefreshCcw, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
 
 export type DashboardNavLink = {
@@ -91,6 +91,16 @@ export function DashboardNavbar({
 
         <div className="ml-auto flex items-center gap-2">
           {children}
+          <Button
+            asChild
+            variant="outline"
+            className="hidden min-h-10 border-white/30 bg-transparent text-white hover:bg-white/10 md:inline-flex"
+          >
+            <a href="/choose-profile" aria-label="Switch persona with guided onboarding">
+              <RefreshCcw className="size-4" aria-hidden="true" />
+              Switch Persona
+            </a>
+          </Button>
           <ProfileControl
             userName={userName}
             profileLabel={profileLabel}
@@ -152,6 +162,12 @@ export function DashboardNavbar({
                 {link.label}
               </a>
             ))}
+            <a
+              href="/choose-profile"
+              className="rounded-md px-3 py-3 text-sm font-semibold text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark"
+            >
+              Switch Persona
+            </a>
             <ProfileControl
               userName={userName}
               profileLabel={profileLabel}

@@ -79,10 +79,10 @@ export default function Support() {
         links={navLinks}
         actions={[
           {
-            label: "Get started",
-            href: "/signup",
+            label: "Start Interactive Demo",
+            href: "/choose-profile",
             variant: "secondary",
-            ariaLabel: "Get started with WealthVerse",
+            ariaLabel: "Start the interactive WealthVerse demo",
           },
           {
             label: "Sign in",
@@ -277,7 +277,7 @@ export default function Support() {
             title: "Product",
             links: [
               { label: "Overview", href: "/" },
-              { label: "Get Started", href: "/signup" },
+              { label: "Start Interactive Demo", href: "/choose-profile" },
               { label: "Sign In", href: "/login" },
             ],
           },

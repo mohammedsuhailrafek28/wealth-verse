@@ -16,6 +16,8 @@ WealthVerse is currently a hackathon-ready demo product. It runs locally with sy
 Additional screenshots:
 
 - [Signup](docs/screenshots/signup.png)
+- [Persona Selection](docs/screenshots/persona-selection.png)
+- [Building Wealth Context](docs/screenshots/building-wealth-context.png)
 - [Support Centre](docs/screenshots/support.png)
 - [Dashboard mobile](docs/screenshots/dashboard-mobile.png)
 - [Avatar mobile](docs/screenshots/avatar-mobile.png)
@@ -244,6 +246,12 @@ Demo mode provides:
 - data access without `DATABASE_URL`
 - deterministic advisor responses without LLM keys
 
+Recommended judge/demo flow:
+
+```text
+Landing -> Choose Persona -> Building Wealth Context -> Dashboard
+```
+
 Production guardrail: demo mode is blocked in production unless `WEALTHVERSE_ALLOW_DEMO_IN_PRODUCTION=true` is explicitly set.
 
 ## Available Scripts
@@ -265,6 +273,8 @@ Public routes:
 - `/login`
 - `/signup`
 - `/support`
+- `/choose-profile`
+- `/building-context`
 
 Product routes:
 

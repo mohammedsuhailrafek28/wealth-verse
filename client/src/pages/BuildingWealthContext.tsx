@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/wealth/ErrorState";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 
 const checklistLabels = [
@@ -39,7 +39,9 @@ export default function BuildingWealthContext() {
   const utils = trpc.useUtils();
   const prefersReducedMotion = usePrefersReducedMotion();
   const [progress, setProgress] = useState(0);
+  const [backendReady, setBackendReady] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const navigationScheduledRef = useRef(false);
 
   const activeProfileQuery = trpc.profiles.getActive.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -56,14 +58,17 @@ export default function BuildingWealthContext() {
     const startedAt = Date.now();
 
     const timer = window.setInterval(() => {
-      const elapsed = Date.now() - startedAt;
-      const next = Math.min(96, Math.round((elapsed / duration) * 100));
-      setProgress(next);
-      if (next >= 96) window.clearInterval(timer);
+      setProgress((current) => {
+        if (backendReady) return Math.min(100, current + (prefersReducedMotion ? 30 : 8));
+
+        const elapsed = Date.now() - startedAt;
+        const next = Math.min(96, Math.round((elapsed / duration) * 100));
+        return Math.max(current, next);
+      });
     }, interval);
 
     return () => window.clearInterval(timer);
-  }, [prefersReducedMotion]);
+  }, [backendReady, prefersReducedMotion]);
 
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
@@ -81,11 +86,7 @@ export default function BuildingWealthContext() {
         utils.transactions.recent.prefetch(),
       ]);
       if (cancelled) return;
-      setProgress(100);
-      setIsComplete(true);
-      window.setTimeout(() => {
-        if (!cancelled) setLocation("/dashboard");
-      }, prefersReducedMotion ? 350 : 850);
+      setBackendReady(true);
     };
 
     complete();
@@ -103,6 +104,18 @@ export default function BuildingWealthContext() {
     wealthContextQuery.data,
     wealthContextQuery.isError,
   ]);
+
+  useEffect(() => {
+    if (!backendReady || progress < 100 || navigationScheduledRef.current) return;
+
+    navigationScheduledRef.current = true;
+    setIsComplete(true);
+    const timeout = window.setTimeout(() => {
+      setLocation("/dashboard");
+    }, prefersReducedMotion ? 350 : 850);
+
+    return () => window.clearTimeout(timeout);
+  }, [backendReady, prefersReducedMotion, progress, setLocation]);
 
   const activeIndex = Math.min(
     checklistLabels.length - 1,

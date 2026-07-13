@@ -40,9 +40,9 @@ const onboardingBenefits = [
 ];
 
 const onboardingSteps = [
-  "Continue through secure sign-in.",
-  "Access your WealthVerse workspace.",
-  "Explore your financial health, goals, recommendations, and advisor tools.",
+  "Choose a guided demo financial persona.",
+  "Let WealthVerse build the profile's Wealth Context.",
+  "Explore financial health, goals, recommendations, and advisor tools.",
 ];
 
 function replaceRoute(path: string) {
@@ -62,7 +62,7 @@ export default function Signup() {
   }, [isAuthenticated, loading]);
 
   const setupLabel = isDemoFallback
-    ? "Enter demo workspace"
+    ? "Start Interactive Demo"
     : "Create my WealthVerse access";
 
   return (
@@ -156,7 +156,7 @@ export default function Signup() {
                 }
               >
                 <div className="space-y-5">
-                  <OAuthLoginButton href={loginUrl} label={setupLabel} />
+                  <OAuthLoginButton href={isDemoFallback ? "/choose-profile" : loginUrl} label={setupLabel} />
 
                   <div className="rounded-[var(--wv-radius-form)] border border-wv-border bg-wv-background p-4">
                     <h2 className="text-sm font-bold text-wv-text">

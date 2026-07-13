@@ -5,7 +5,6 @@ import { RouteLoadingFallback } from "./components/common/RouteLoadingFallback";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import { useAuth } from "./_core/hooks/useAuth";
 
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
@@ -58,10 +57,9 @@ function useCurrentPath() {
 }
 
 function Router() {
-  const { isAuthenticated } = useAuth();
   const location = useCurrentPath();
 
-  if (location === "/") return isAuthenticated ? <Dashboard /> : <Home />;
+  if (location === "/") return <Home />;
   if (location === "/login") return <Login />;
   if (location === "/signup") return <Signup />;
   if (location === "/support") return <Support />;
