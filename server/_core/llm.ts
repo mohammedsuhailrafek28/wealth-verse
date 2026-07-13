@@ -1,4 +1,5 @@
 import { ENV } from "./env";
+import { logger } from "./logger";
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
 
@@ -320,16 +321,20 @@ const fetchWithBackoff = async (
       } catch {
         // Body already settled; nothing to clean up.
       }
-      console.warn(
-        `LLM request retry ${attempt + 1}/${RETRY_MAX_RETRIES} after status ${response.status}`
-      );
+      logger.warn("[LLM] Retrying request after upstream status.", {
+        attempt: attempt + 1,
+        maxRetries: RETRY_MAX_RETRIES,
+        status: response.status,
+      });
       await sleep(computeBackoffDelay(attempt, retryAfterMs));
     } catch (error) {
       lastError = error;
       if (attempt === RETRY_MAX_RETRIES) throw error;
-      console.warn(
-        `LLM request retry ${attempt + 1}/${RETRY_MAX_RETRIES} after network error`
-      );
+      logger.warn("[LLM] Retrying request after network error.", {
+        attempt: attempt + 1,
+        maxRetries: RETRY_MAX_RETRIES,
+        error,
+      });
       await sleep(computeBackoffDelay(attempt));
     }
   }
@@ -413,7 +418,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
+      `LLM invoke failed: ${response.status} ${response.statusText} - ${errorText}`
     );
   }
 
@@ -446,7 +451,7 @@ export async function listLLMModels(): Promise<ModelsResponse> {
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `List LLM models failed: ${response.status} ${response.statusText} – ${errorText}`
+      `List LLM models failed: ${response.status} ${response.statusText} - ${errorText}`
     );
   }
 

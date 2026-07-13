@@ -14,6 +14,7 @@ import {
   financialHealthScores,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
+import { logger } from "./_core/logger";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let warnedMissingDatabase = false;
@@ -133,13 +134,13 @@ export async function getDb() {
     try {
       _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      logger.warn("[Database] Failed to initialize connection.", { error });
       _db = null;
     }
   }
   if (!_db && !process.env.DATABASE_URL && !warnedMissingDatabase) {
     warnedMissingDatabase = true;
-    console.warn(
+    logger.warn(
       canUseFallbackData()
         ? "[Database] DATABASE_URL missing; using local demo data."
         : "[Database] DATABASE_URL missing."
@@ -156,7 +157,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   const db = await getDb();
   if (!db) {
     if (ENV.isDemoMode) return;
-    console.warn("[Database] Cannot upsert user: database not available");
+    logger.warn("[Database] Cannot upsert user: database not available");
     return;
   }
 
@@ -203,7 +204,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       set: updateSet,
     });
   } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
+    logger.error("[Database] Failed to upsert user.", { error });
     throw error;
   }
 }
@@ -212,7 +213,7 @@ export async function getUserByOpenId(openId: string) {
   const db = await getDb();
   if (!db) {
     if (ENV.isDemoMode && openId === DEMO_USER.openId) return DEMO_USER as any;
-    console.warn("[Database] Cannot get user: database not available");
+    logger.warn("[Database] Cannot get user: database not available");
     return undefined;
   }
 
@@ -223,6 +224,27 @@ export async function getUserByOpenId(openId: string) {
     .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getDatabaseHealth() {
+  if (!ENV.databaseUrl) {
+    return {
+      configured: false,
+      status: ENV.isDemoMode ? "demo" : "unavailable",
+      message: ENV.isDemoMode
+        ? "DATABASE_URL is not configured; local demo data is active."
+        : "DATABASE_URL is required when demo mode is disabled.",
+    } as const;
+  }
+
+  const db = await getDb();
+  return {
+    configured: true,
+    status: db ? "healthy" : "unavailable",
+    message: db
+      ? "Database client initialized."
+      : "Database URL is configured, but the database client is unavailable.",
+  } as const;
 }
 
 // ============ Demo Profiles ============

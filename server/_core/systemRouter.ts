@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getConfigWarnings, ENV } from "./env";
 import { notifyOwner } from "./notification";
 import { adminProcedure, publicProcedure, router } from "./trpc";
 
@@ -11,6 +12,10 @@ export const systemRouter = router({
     )
     .query(() => ({
       ok: true,
+      environment: ENV.isProduction ? "production" : "development",
+      demoMode: ENV.isDemoMode,
+      timestamp: new Date().toISOString(),
+      warnings: getConfigWarnings(),
     })),
 
   notifyOwner: adminProcedure
