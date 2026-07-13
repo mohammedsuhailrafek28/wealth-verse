@@ -10,7 +10,6 @@ import { PromptChip } from "@/components/advisor/PromptChip";
 import { VoiceControls } from "@/components/advisor/VoiceControls";
 import { DashboardNavbar, type DashboardNavLink } from "@/components/layout/DashboardNavbar";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/wealth/EmptyState";
 import { ErrorState } from "@/components/wealth/ErrorState";
 import { LoadingSkeleton } from "@/components/wealth/LoadingSkeleton";
 import { SectionHeader } from "@/components/wealth/SectionHeader";
@@ -321,7 +320,48 @@ export default function AvatarAdvisor() {
   const monthlySurplus = wealthContext?.monthlySurplus;
   const activeGoals = wealthContext?.goals?.length ?? 0;
   const riskProfile = wealthContext?.riskProfile?.profile ?? dashboard?.profile.riskProfile;
-  const latestAssistant = [...conversation].reverse().find((message) => message.role === "assistant");
+  const emergencyCoverageMonths =
+    dashboard && dashboard.monthlyExpenses > 0
+      ? Math.round((dashboard.emergencyFundBalance / dashboard.monthlyExpenses) * 10) / 10
+      : null;
+  const firstName = (profileLabel ?? dashboard?.profile.name ?? "there").split(" ")[0];
+  const welcomeMessage: AdvisorMessageView = {
+    id: `welcome-${activeProfileQuery.data?.id ?? "demo"}`,
+    role: "assistant",
+    createdAt: new Date(),
+    status: "complete",
+    response: {
+      answer:
+        emergencyCoverageMonths !== null
+          ? `Welcome back, ${firstName}. I've reviewed your financial profile. Your emergency fund should ideally cover 9 months of expenses, and you are currently at about ${emergencyCoverageMonths} months. Would you like me to explain why this matters?`
+          : `Welcome back, ${firstName}. I've reviewed your financial profile and highlighted the areas most worth your attention today. Would you like me to start with your emergency fund, goals, or spending risks?`,
+      summary: "Profile review ready",
+      keyInsights: [
+        healthScore ? `Financial health score: ${healthScore}/100.` : "Financial health context is ready.",
+        savingsRate !== undefined ? `Savings rate: ${formatPercentage(savingsRate)}.` : "Savings rate is available in your dashboard.",
+      ],
+      suggestedNextActions: [
+        "Review your emergency fund coverage.",
+        "Ask which financial risk deserves attention first.",
+      ],
+      followUpQuestions: [
+        "Why does my emergency fund matter?",
+        "What should I focus on first?",
+        "How can I improve my financial health?",
+      ],
+      relatedMetrics: [
+        ...(healthScore ? [{ label: "Health score", value: `${healthScore}/100` }] : []),
+        ...(emergencyCoverageMonths !== null
+          ? [{ label: "Emergency cover", value: `${emergencyCoverageMonths} months` }]
+          : []),
+      ],
+      confidenceLevel: "medium",
+      mode: "fallback",
+      disclaimer: "This is educational demo guidance, not licensed financial advice.",
+    },
+  };
+  const latestAssistant =
+    [...conversation].reverse().find((message) => message.role === "assistant") ?? welcomeMessage;
 
   return (
     <AdvisorFrame
@@ -388,9 +428,13 @@ export default function AvatarAdvisor() {
                 aria-label="Advisor conversation"
               >
                 {conversation.length === 0 ? (
-                  <EmptyState
-                    title="No advisor messages yet"
-                    description="Start with a suggested prompt like financial health, spending, goals, or risk review."
+                  <AdvisorMessage
+                    message={welcomeMessage}
+                    onFollowUp={askAdvisor}
+                    onSpeak={speak}
+                    speaking={isSpeaking}
+                    muted={isMuted}
+                    disabled={advisorMutation.isPending}
                   />
                 ) : (
                   conversation.map((message) => (

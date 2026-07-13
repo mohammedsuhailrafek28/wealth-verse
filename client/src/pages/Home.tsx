@@ -131,7 +131,7 @@ export default function Home() {
       <main>
         <section className="relative overflow-hidden bg-gradient-to-br from-wv-primary-dark via-wv-primary to-[#13a693] text-white">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.24),transparent_34%)]" />
-          <div className="relative mx-auto grid max-w-[var(--wv-content-width)] items-center gap-10 px-4 py-14 sm:px-6 md:py-18 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:py-20">
+          <div className="relative mx-auto grid max-w-[var(--wv-content-width)] items-center gap-7 px-4 py-10 sm:px-6 md:py-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-6 lg:px-8 lg:py-16">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-white">
                 <ShieldCheck className="size-4" aria-hidden="true" />
@@ -172,7 +172,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative">
+            <div className="relative lg:scale-110 lg:origin-center xl:scale-125">
               <ProductHeroVisual />
             </div>
           </div>
