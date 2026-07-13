@@ -60,7 +60,7 @@ export default function Login() {
             >
               <img
                 src={wealthverseLogo}
-                alt=""
+                alt="Official WealthVerse logo"
                 className="size-10 rounded-md bg-white object-contain p-1"
                 loading="lazy"
                 decoding="async"

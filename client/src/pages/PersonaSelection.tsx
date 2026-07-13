@@ -138,7 +138,7 @@ export default function PersonaSelection() {
             href="/"
             className="inline-flex items-center gap-2 rounded-md text-sm font-bold text-wv-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2"
           >
-            <img src={wealthverseLogo} alt="WealthVerse" className="size-8 rounded-md object-contain" />
+            <img src={wealthverseLogo} alt="Official WealthVerse logo" className="size-8 rounded-md object-contain" />
             <span>WealthVerse</span>
           </a>
           <span className="hidden text-[10px] font-bold uppercase tracking-[0.22em] text-wv-text-secondary sm:inline">

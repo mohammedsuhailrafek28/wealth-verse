@@ -186,7 +186,7 @@ export default function BuildingWealthContext() {
       <section className="relative w-full max-w-lg text-center" aria-labelledby="context-title">
         <img
           src={wealthverseLogo}
-          alt="WealthVerse"
+          alt="Official WealthVerse logo"
           className={cn(
             "mx-auto size-20 rounded-2xl object-contain shadow-[0_0_50px_rgba(150,228,202,0.18)]",
             !isComplete && "motion-safe:animate-pulse",
