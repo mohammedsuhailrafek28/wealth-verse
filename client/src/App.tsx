@@ -10,6 +10,8 @@ import { useAuth } from "./_core/hooks/useAuth";
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Support = lazy(() => import("./pages/Support"));
+const PersonaSelection = lazy(() => import("./pages/PersonaSelection"));
+const BuildingWealthContext = lazy(() => import("./pages/BuildingWealthContext"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SpendingInsights = lazy(() => import("./pages/SpendingInsights"));
 const GoalPlanner = lazy(() => import("./pages/GoalPlanner"));
@@ -63,6 +65,8 @@ function Router() {
   if (location === "/login") return <Login />;
   if (location === "/signup") return <Signup />;
   if (location === "/support") return <Support />;
+  if (location === "/choose-profile") return <PersonaSelection />;
+  if (location === "/building-context") return <BuildingWealthContext />;
   if (location === "/dashboard") return <Dashboard />;
   if (location === "/spending") return <SpendingInsights />;
   if (location === "/goals") return <GoalPlanner />;
