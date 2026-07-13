@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: wealthverse
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && corepack pnpm install --frozen-lockfile && corepack pnpm run build
+    startCommand: corepack pnpm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WEALTHVERSE_DEMO_MODE
+        value: "true"
+      - key: WEALTHVERSE_ALLOW_DEMO_IN_PRODUCTION
+        value: "true"
+      - key: WEALTHVERSE_PERSISTENCE
+        value: memory
+      - key: JWT_SECRET
+        sync: false

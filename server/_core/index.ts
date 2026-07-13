@@ -35,6 +35,13 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  app.get("/api/health", (_req, res) => {
+    res.json({
+      ok: true,
+      service: "wealthverse",
+      mode: process.env.WEALTHVERSE_DEMO_MODE === "true" ? "demo" : "standard",
+    });
+  });
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   // tRPC API
@@ -54,14 +61,16 @@ async function startServer() {
   }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
+  const isProduction = process.env.NODE_ENV === "production";
+  const port = isProduction ? preferredPort : await findAvailablePort(preferredPort);
+  const host = isProduction ? "0.0.0.0" : undefined;
 
-  if (port !== preferredPort) {
+  if (!isProduction && port !== preferredPort) {
     logger.info("Preferred port busy; using alternate port.", { preferredPort, port });
   }
 
-  server.listen(port, () => {
-    logger.info("Server started.", { port });
+  server.listen(port, host, () => {
+    logger.info("Server started.", { port, host: host ?? "default" });
   });
 }
 
