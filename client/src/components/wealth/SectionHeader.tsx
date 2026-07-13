@@ -34,15 +34,15 @@ export function SectionHeader({
     >
       <div className={cn("max-w-2xl", align === "center" && "mx-auto")}>
         {eyebrow ? (
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-wv-primary">
+          <p className="mb-2 text-[13px] font-semibold uppercase tracking-[0.14em] text-wv-primary">
             {eyebrow}
           </p>
         ) : null}
-        <Heading className="font-display text-2xl font-bold tracking-tight text-wv-text sm:text-3xl">
+        <Heading className="font-display text-[var(--wv-section-title)] font-bold leading-[1.12] tracking-[-0.03em] text-wv-text">
           {title}
         </Heading>
         {description ? (
-          <p className="mt-2 text-sm leading-6 text-wv-text-secondary sm:text-base">
+          <p className="mt-2 text-[15px] font-normal leading-6 text-wv-text-secondary sm:text-[17px]">
             {description}
           </p>
         ) : null}

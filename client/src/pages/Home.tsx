@@ -1,7 +1,6 @@
 import heroAdvisorConsult from "@/assets/wealthverse/hero-advisor-consult.png";
 import heroBankingSecurity from "@/assets/wealthverse/hero-banking-security.png";
 import heroFamily from "@/assets/wealthverse/hero-family.png";
-import heroMobileBanking from "@/assets/wealthverse/hero-mobile-banking.png";
 import wealthverseLogo from "@/assets/wealthverse/wealthverse-logo.png";
 import { Footer } from "@/components/layout/Footer";
 import { PublicNavbar, type PublicNavLink } from "@/components/layout/PublicNavbar";
@@ -174,18 +173,7 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="rounded-[var(--wv-radius-card)] border border-white/20 bg-white/12 p-3 shadow-2xl shadow-wv-primary-dark/30 backdrop-blur">
-                <img
-                  src={heroMobileBanking}
-                  width={1030}
-                  height={376}
-                  alt="Mobile banking and wealth dashboard preview"
-                  className="aspect-[1030/376] w-full rounded-[6px] object-cover"
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                />
-              </div>
+              <ProductHeroVisual />
             </div>
           </div>
         </section>
@@ -375,6 +363,109 @@ export default function Home() {
           pages will be added in later migration phases.
         </p>
       </Footer>
+    </div>
+  );
+}
+
+function ProductHeroVisual() {
+  return (
+    <div
+      className="relative rounded-[28px] border border-white/20 bg-white/12 p-4 shadow-2xl shadow-wv-primary-dark/30 backdrop-blur"
+      aria-label="WealthVerse product preview showing health score, goals, recommendations, and advisor"
+    >
+      <div className="absolute -right-8 -top-8 size-32 rounded-full bg-white/12 blur-2xl" aria-hidden="true" />
+      <div className="relative rounded-[22px] border border-white/18 bg-[#f7fbfa] p-4 text-wv-text shadow-[0_28px_80px_-48px_rgba(0,0,0,0.75)]">
+        <div className="flex items-center justify-between border-b border-wv-border pb-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-wv-primary">
+              WealthVerse
+            </p>
+            <h2 className="mt-1 font-display text-xl font-bold tracking-[-0.03em]">
+              Financial Intelligence
+            </h2>
+          </div>
+          <span className="rounded-full bg-wv-primary px-3 py-1 text-xs font-semibold text-white">
+            Live demo
+          </span>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-2xl border border-wv-border bg-white p-4 shadow-wv-low">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-wv-muted">
+              Health Score
+            </p>
+            <div className="mt-4 flex items-end gap-3">
+              <span className="font-display text-5xl font-extrabold leading-none tracking-[-0.04em] text-wv-primary-dark tabular-nums">
+                75
+              </span>
+              <span className="pb-1 text-sm font-semibold text-wv-muted">/100</span>
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-wv-border">
+              <div className="h-full w-3/4 rounded-full bg-wv-primary" />
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            <HeroSignal
+              icon={<Target className="size-4" aria-hidden="true" />}
+              label="Goal"
+              title="First home plan"
+              meta="18 months faster with monthly focus"
+            />
+            <HeroSignal
+              icon={<Sparkles className="size-4" aria-hidden="true" />}
+              label="Recommendation"
+              title="Increase emergency buffer"
+              meta="Priority: high"
+            />
+          </div>
+        </div>
+
+        <div className="mt-3 rounded-2xl border border-wv-border bg-white p-4 shadow-wv-low">
+          <div className="flex items-start gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-wv-primary/10 text-wv-primary">
+              <Bot className="size-5" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-wv-muted">
+                AI Advisor
+              </p>
+              <p className="mt-1 text-sm font-semibold leading-5 text-wv-text">
+                Focus this month on emergency coverage before raising investments.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HeroSignal({
+  icon,
+  label,
+  title,
+  meta,
+}: {
+  icon: ReactNode;
+  label: string;
+  title: string;
+  meta: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-wv-border bg-white p-3 shadow-wv-low transition-transform duration-200 hover:-translate-y-0.5">
+      <div className="flex items-start gap-3">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-wv-background text-wv-primary">
+          {icon}
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-wv-muted">
+            {label}
+          </p>
+          <p className="mt-1 text-sm font-bold leading-5 text-wv-text">{title}</p>
+          <p className="mt-1 text-xs text-wv-text-secondary">{meta}</p>
+        </div>
+      </div>
     </div>
   );
 }

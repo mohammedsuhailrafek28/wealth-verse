@@ -58,7 +58,7 @@ export function PublicNavbar({
               <ShieldCheck className="size-5" aria-hidden="true" />
             </span>
           )}
-          <span className="font-display text-base font-bold text-wv-text">
+          <span className="font-display text-base font-bold tracking-[-0.03em] text-wv-text">
             {brandName}
           </span>
         </a>
@@ -73,8 +73,8 @@ export function PublicNavbar({
               href={link.href}
               aria-current={link.isActive ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium text-wv-text-secondary transition-colors hover:bg-wv-background hover:text-wv-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2",
-                link.isActive && "bg-wv-background text-wv-primary"
+                "rounded-md px-3 py-2 text-[15px] font-medium text-wv-text-secondary transition-colors hover:bg-wv-background hover:text-wv-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2",
+                link.isActive && "bg-wv-background font-semibold text-wv-primary"
               )}
             >
               {link.label}
@@ -120,8 +120,8 @@ export function PublicNavbar({
                 href={link.href}
                 aria-current={link.isActive ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-3 text-sm font-medium text-wv-text-secondary transition-colors hover:bg-wv-background hover:text-wv-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2",
-                  link.isActive && "bg-wv-background text-wv-primary"
+                  "rounded-md px-3 py-3 text-[15px] font-medium text-wv-text-secondary transition-colors hover:bg-wv-background hover:text-wv-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wv-primary focus-visible:ring-offset-2",
+                  link.isActive && "bg-wv-background font-semibold text-wv-primary"
                 )}
               >
                 {link.label}

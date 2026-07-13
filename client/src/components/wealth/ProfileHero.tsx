@@ -32,16 +32,16 @@ export function ProfileHero({
     >
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-wv-primary">
+          <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-wv-primary">
             Wealth command centre
           </p>
           <h1
             id="dashboard-title"
-            className="mt-2 font-display text-2xl font-bold tracking-tight text-wv-text sm:text-3xl"
+            className="mt-2 font-display text-[var(--wv-dashboard-greeting)] font-bold leading-[1.1] tracking-[-0.03em] text-wv-text"
           >
             Welcome back, {profileName}.
           </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-wv-text-secondary sm:text-base">
+          <p className="mt-2 max-w-2xl text-[15px] font-normal leading-6 text-wv-text-secondary sm:text-[17px]">
             {summary}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -55,8 +55,8 @@ export function ProfileHero({
               <Sparkles className="size-5" aria-hidden="true" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-wv-text">Next best signal</h2>
-              <p className="mt-1 text-sm leading-6 text-wv-text-secondary">
+              <h2 className="text-[20px] font-bold leading-tight text-wv-text">Next best signal</h2>
+              <p className="mt-1 text-[15px] font-normal leading-6 text-wv-text-secondary">
                 {insight ?? "Review your dashboard sections for the latest profile signals."}
               </p>
               {onAskAdvisor ? (

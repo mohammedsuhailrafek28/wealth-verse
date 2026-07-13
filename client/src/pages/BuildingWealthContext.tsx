@@ -8,15 +8,17 @@ import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/wealth/ErrorState";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 
 const checklistLabels = [
-  "Understanding your profile",
+  "Understanding your financial profile",
+  "Analyzing spending behaviour",
   "Evaluating financial health",
-  "Finding opportunities",
-  "Preparing recommendations",
-  "Personalizing Advisor",
+  "Assessing risk tolerance",
+  "Preparing personalized recommendations",
+  "Initializing Wealth Advisor",
 ];
 
 function usePrefersReducedMotion() {
@@ -175,32 +177,45 @@ export default function BuildingWealthContext() {
         }}
         aria-hidden="true"
       />
-      <div className="absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top,rgba(150,228,202,0.16),transparent_58%)]" />
+      <div className="absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top,rgba(150,228,202,0.18),transparent_58%)]" />
+      <div
+        className="absolute left-1/2 top-1/2 size-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#96e4ca]/10 opacity-60 motion-safe:animate-pulse"
+        aria-hidden="true"
+      />
 
       <section className="relative w-full max-w-lg text-center" aria-labelledby="context-title">
         <img
           src={wealthverseLogo}
           alt="WealthVerse"
-          className="mx-auto size-20 rounded-2xl object-contain shadow-[0_0_50px_rgba(150,228,202,0.16)] motion-safe:animate-pulse"
+          className={cn(
+            "mx-auto size-20 rounded-2xl object-contain shadow-[0_0_50px_rgba(150,228,202,0.18)]",
+            !isComplete && "motion-safe:animate-pulse",
+            isComplete && "ring-2 ring-[#96e4ca]/40"
+          )}
         />
         <p className="mt-7 text-[10px] font-bold uppercase tracking-[0.22em] text-white/38">
           This should take just a few seconds.
         </p>
-        <h1 id="context-title" className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          Building Your Wealth Context
+        <h1 id="context-title" className="mt-3 font-display text-[34px] font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-[40px]">
+          Building Your Financial Twin
         </h1>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/58">
+        <p className="mx-auto mt-3 max-w-md text-[15px] font-normal leading-6 text-white/58 sm:text-[17px]">
           Analyzing your financial profile to generate personalized insights.
         </p>
 
-        <div className="mx-auto mt-8 rounded-[28px] border border-white/7 bg-white/[0.035] p-7 text-left shadow-[0_30px_90px_-55px_rgba(0,0,0,0.9)] backdrop-blur">
+        <div
+          className={cn(
+            "mx-auto mt-8 rounded-[28px] border bg-white/[0.035] p-7 text-left shadow-[0_30px_90px_-55px_rgba(0,0,0,0.9)] backdrop-blur transition-all duration-500",
+            isComplete ? "border-[#96e4ca]/24 bg-[#96e4ca]/[0.055]" : "border-white/7"
+          )}
+        >
           <ContextBuildingChecklist items={checklistItems} />
           <ContextProgress value={progress} className="mt-8" />
         </div>
 
         <p className="mt-7 text-xs text-white/42" role="status" aria-live="polite">
           {isComplete
-            ? "Wealth context ready. Opening dashboard."
+            ? "Financial twin ready. Opening your dashboard."
             : `Preparing WealthVerse intelligence: ${Math.round(progress)} percent.`}
         </p>
 

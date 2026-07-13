@@ -67,7 +67,7 @@ export function DashboardNavbar({
               <UserRound className="size-5" aria-hidden="true" />
             </span>
           )}
-          <span className="font-display text-base font-bold">{brandName}</span>
+          <span className="font-display text-base font-bold tracking-[-0.03em]">{brandName}</span>
         </a>
 
         <nav
@@ -80,8 +80,8 @@ export function DashboardNavbar({
               href={link.href}
               aria-current={link.isActive ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-semibold text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark",
-                link.isActive && "bg-white/12 text-white"
+                "rounded-md px-3 py-2 text-[15px] font-medium text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark",
+                link.isActive && "bg-white/12 font-semibold text-white"
               )}
             >
               {link.label}
@@ -155,8 +155,8 @@ export function DashboardNavbar({
                 href={link.href}
                 aria-current={link.isActive ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-3 text-sm font-semibold text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark",
-                  link.isActive && "bg-white/12 text-white"
+                  "rounded-md px-3 py-3 text-[15px] font-medium text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark",
+                  link.isActive && "bg-white/12 font-semibold text-white"
                 )}
               >
                 {link.label}
@@ -164,7 +164,7 @@ export function DashboardNavbar({
             ))}
             <a
               href="/choose-profile"
-              className="rounded-md px-3 py-3 text-sm font-semibold text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark"
+              className="rounded-md px-3 py-3 text-[15px] font-medium text-white/78 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark"
             >
               Switch Persona
             </a>
@@ -209,7 +209,7 @@ function ProfileControl({
           value={activeProfileId ?? ""}
           disabled={disabled}
           onChange={(event) => onProfileChange(Number(event.target.value))}
-          className="min-h-10 max-w-48 rounded-md border border-white/25 bg-wv-primary-dark px-3 py-2 text-sm font-semibold text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark disabled:cursor-not-allowed disabled:opacity-70"
+          className="min-h-10 max-w-48 rounded-md border border-white/25 bg-wv-primary-dark px-3 py-2 text-[15px] font-semibold text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-wv-primary-dark disabled:cursor-not-allowed disabled:opacity-70"
           aria-label="Switch active profile"
         >
           {profileOptions.map((profile) => (
@@ -232,8 +232,8 @@ function ProfileControl({
       )}
       aria-label="Current profile"
     >
-      <span className="block text-xs text-white/65">{profileLabel ?? "Profile"}</span>
-      <span className="block max-w-40 truncate text-sm font-semibold">
+      <span className="block text-[13px] font-semibold uppercase tracking-[0.1em] text-white/65">{profileLabel ?? "Profile"}</span>
+      <span className="block max-w-40 truncate text-[15px] font-semibold">
         {userName ?? "Demo User"}
       </span>
     </div>

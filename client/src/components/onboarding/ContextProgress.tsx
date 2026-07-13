@@ -5,9 +5,9 @@ export function ContextProgress({ value, className }: { value: number; className
 
   return (
     <div className={cn("space-y-2", className)}>
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/8" aria-hidden="true">
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/8 shadow-inner" aria-hidden="true">
         <div
-          className="h-full rounded-full bg-[#96e4ca] transition-[width] duration-500 ease-out motion-reduce:transition-none"
+          className="h-full rounded-full bg-gradient-to-r from-[#96e4ca] to-[#d9fff0] shadow-[0_0_18px_rgba(150,228,202,0.34)] transition-[width] duration-500 ease-out motion-reduce:transition-none"
           style={{ width: `${safeValue}%` }}
         />
       </div>

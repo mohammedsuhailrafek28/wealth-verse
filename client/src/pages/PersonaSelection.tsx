@@ -6,7 +6,6 @@ import { ErrorState } from "@/components/wealth/ErrorState";
 import { LoadingSkeleton } from "@/components/wealth/LoadingSkeleton";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { formatTitle } from "@/lib/formatters";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../server/routers";
 import { Sparkles } from "lucide-react";
@@ -16,38 +15,55 @@ import { useLocation } from "wouter";
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type DemoProfile = RouterOutputs["profiles"]["list"][number];
 
-const displayNameByProfileName: Record<string, string> = {
-  "Salaried Beginner": "Salaried Professional",
-  "Family-Focused": "Family Planner",
-  "Young Professional": "Young Professional",
-  "High Spender": "Entrepreneur",
+type PersonaPresentation = {
+  name: string;
+  profession: string;
+  city: string;
+  age: number;
+  incomeLabel: string;
+  goal: string;
+  challenge: string;
+  riskProfile: string;
+  avatarTone: "teal" | "amber" | "slate";
 };
 
-function personaTitle(profile: DemoProfile) {
-  return displayNameByProfileName[profile.name] ?? formatTitle(profile.name);
-}
+const personaByProfileName: Record<string, PersonaPresentation> = {
+  "Salaried Beginner": {
+    name: "Arjun Sharma",
+    profession: "Software Engineer",
+    city: "Chennai",
+    age: 25,
+    incomeLabel: "₹75,000",
+    riskProfile: "Moderate",
+    goal: "Buy first home",
+    challenge: "Emergency fund only covers 3 months",
+    avatarTone: "teal",
+  },
+  "Family-Focused": {
+    name: "Priya Nair",
+    profession: "HR Manager",
+    city: "Bengaluru",
+    age: 38,
+    incomeLabel: "₹1.2L",
+    riskProfile: "Conservative",
+    goal: "Children's education",
+    challenge: "Planning long-term investments",
+    avatarTone: "amber",
+  },
+  "High Spender": {
+    name: "Ravi Mehta",
+    profession: "Startup Founder",
+    city: "Mumbai",
+    age: 34,
+    incomeLabel: "Variable monthly income",
+    riskProfile: "Aggressive",
+    goal: "Scale business while growing personal wealth",
+    challenge: "Irregular cash flow",
+    avatarTone: "slate",
+  },
+};
 
-function personaIcon(profile: DemoProfile): "briefcase" | "family" | "young" | "entrepreneur" {
-  const text = `${profile.name} ${profile.occupation ?? ""}`.toLowerCase();
-  if (text.includes("family")) return "family";
-  if (text.includes("business") || text.includes("entrepreneur")) return "entrepreneur";
-  if (text.includes("young")) return "young";
-  return "briefcase";
-}
-
-function personaDescription(profile: DemoProfile) {
-  const title = personaTitle(profile);
-  if (title === "Salaried Professional") {
-    return "Steady income, early investing, and a plan for a secure future.";
-  }
-  if (title === "Family Planner") {
-    return "Balancing household expenses, education needs, and long-term goals.";
-  }
-  if (title === "Entrepreneur") {
-    return "Variable income, business cash flow, and growth-focused decisions.";
-  }
-  return profile.description ?? "A demo financial persona for WealthVerse insights.";
-}
+const approvedProfileNames = new Set(Object.keys(personaByProfileName));
 
 function routeTo(path: string) {
   window.history.pushState(null, "", path);
@@ -92,7 +108,9 @@ export default function PersonaSelection() {
     },
   });
 
-  const profiles = profilesQuery.data ?? [];
+  const profiles = (profilesQuery.data ?? []).filter((profile) =>
+    approvedProfileNames.has(profile.name)
+  );
   const selectedProfile = useMemo(
     () => profiles.find((profile) => profile.id === selectedProfileId) ?? profiles[0],
     [profiles, selectedProfileId]
@@ -172,11 +190,7 @@ export default function PersonaSelection() {
                 <div key={profile.id} role="listitem">
                   <PersonaCard
                     id={profile.id}
-                    title={personaTitle(profile)}
-                    description={personaDescription(profile)}
-                    occupation={profile.occupation}
-                    riskProfile={formatTitle(profile.riskProfile)}
-                    icon={personaIcon(profile)}
+                    {...personaByProfileName[profile.name]}
                     selected={(selectedProfileId ?? selectedProfile?.id) === profile.id}
                     disabled={disabled}
                     onSelect={setSelectedProfileId}

@@ -30,14 +30,14 @@ export function HealthScoreCard({
   return (
     <Card
       className={cn(
-        "rounded-[var(--wv-radius-card)] border-wv-border bg-wv-surface py-0 shadow-wv-card",
+        "rounded-[var(--wv-radius-card)] border-wv-border bg-wv-surface py-0 shadow-[0_24px_70px_-48px_rgba(12,133,119,0.42)] transition-shadow duration-300 hover:shadow-[0_28px_80px_-50px_rgba(12,133,119,0.52)]",
         className
       )}
     >
       <CardContent className="p-6">
         <div className="grid gap-6 lg:grid-cols-[220px_1fr] lg:items-center">
           <div className="text-center lg:text-left">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-wv-primary">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-wv-primary">
               Financial health
             </p>
             <div
@@ -45,16 +45,16 @@ export function HealthScoreCard({
               aria-label={`Financial health score ${safeScore} out of 100`}
             >
               <div>
-                <p className="text-4xl font-bold tracking-tight text-wv-text">
+                <p className="font-display text-[var(--wv-metric-number)] font-extrabold leading-none tracking-[-0.03em] text-wv-text tabular-nums">
                   {safeScore}
                 </p>
-                <p className="text-xs font-semibold text-wv-muted">out of 100</p>
+                <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-wv-muted">out of 100</p>
               </div>
             </div>
-            <p className="mt-4 text-lg font-bold capitalize text-wv-text">
+            <p className="mt-4 text-[20px] font-bold capitalize leading-tight text-wv-text">
               {category}
             </p>
-            <p className="mt-2 text-sm leading-6 text-wv-text-secondary">
+            <p className="mt-2 text-[15px] font-normal leading-6 text-wv-text-secondary">
               {description}
             </p>
             {projection ? (
@@ -73,8 +73,8 @@ export function HealthScoreCard({
                   className="rounded-[var(--wv-radius-form)] border border-wv-border bg-wv-background p-4"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-sm font-bold text-wv-text">{item.label}</h3>
-                    <span className="text-sm font-bold text-wv-primary">
+                    <h3 className="text-[14px] font-semibold text-wv-text">{item.label}</h3>
+                    <span className="text-[14px] font-semibold text-wv-primary tabular-nums">
                       {itemScore}/100
                     </span>
                   </div>
@@ -84,7 +84,7 @@ export function HealthScoreCard({
                     aria-label={`${item.label} score ${itemScore} out of 100`}
                   />
                   {item.description ? (
-                    <p className="mt-2 text-xs leading-5 text-wv-text-secondary">
+                    <p className="mt-2 text-[13px] font-normal leading-5 text-wv-text-secondary">
                       {item.description}
                     </p>
                   ) : null}

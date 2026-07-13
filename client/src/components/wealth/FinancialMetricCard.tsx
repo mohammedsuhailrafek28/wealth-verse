@@ -52,31 +52,31 @@ export function FinancialMetricCard({
   return (
     <article
       className={cn(
-        "rounded-wv-card border border-wv-border bg-wv-surface p-5 text-wv-text shadow-wv-card",
+        "group rounded-wv-card border border-wv-border bg-wv-surface p-5 text-wv-text shadow-wv-card transition-all duration-300 hover:-translate-y-0.5 hover:border-wv-primary/20 hover:shadow-[0_26px_74px_-54px_rgba(12,133,119,0.58)]",
         className
       )}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-wv-text-secondary">{title}</h3>
-          <div className="mt-2 text-2xl font-bold tracking-tight">{value}</div>
+          <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em] text-wv-text-secondary">{title}</h3>
+          <div className="mt-2 font-display text-[var(--wv-metric-number)] font-extrabold leading-none tracking-[-0.03em] tabular-nums">{value}</div>
         </div>
         {icon ? (
-          <div className="flex size-10 items-center justify-center rounded-md bg-wv-background text-wv-primary">
+          <div className="flex size-10 items-center justify-center rounded-md bg-wv-background text-wv-primary transition-colors duration-200 group-hover:bg-wv-primary/10">
             {icon}
           </div>
         ) : null}
       </div>
 
       {subtitle ? (
-        <p className="mt-3 text-sm leading-5 text-wv-muted">{subtitle}</p>
+        <p className="mt-3 text-[15px] font-normal leading-6 text-wv-muted">{subtitle}</p>
       ) : null}
 
       <div className="mt-4 flex items-center justify-between gap-3">
         {trend ? (
           <p
             className={cn(
-              "inline-flex items-center gap-1 text-sm font-semibold",
+              "inline-flex items-center gap-1 text-[14px] font-semibold",
               trendDirection === "up" && "text-wv-success",
               trendDirection === "down" && "text-wv-error",
               trendDirection === "flat" && "text-wv-muted"

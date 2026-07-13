@@ -631,15 +631,15 @@ function SecondaryPanel({
   icon: React.ReactNode;
 }) {
   return (
-    <article className="rounded-[var(--wv-radius-card)] border border-wv-border bg-wv-surface p-5 shadow-wv-card">
+    <article className="rounded-[var(--wv-radius-card)] border border-wv-border bg-wv-surface p-5 shadow-wv-card transition-all duration-300 hover:-translate-y-0.5 hover:border-wv-primary/20 hover:shadow-[0_26px_74px_-54px_rgba(12,133,119,0.58)]">
       <div className="flex items-start gap-4">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-wv-background text-wv-primary">
           {icon}
         </div>
         <div>
-          <h2 className="text-sm font-bold text-wv-text-secondary">{title}</h2>
-          <p className="mt-1 text-2xl font-bold text-wv-text">{value}</p>
-          <p className="mt-2 text-sm leading-6 text-wv-text-secondary">
+          <h2 className="text-[13px] font-semibold uppercase tracking-[0.1em] text-wv-text-secondary">{title}</h2>
+          <p className="mt-1 font-display text-[var(--wv-metric-number)] font-extrabold leading-none tracking-[-0.03em] text-wv-text tabular-nums">{value}</p>
+          <p className="mt-2 text-[15px] font-normal leading-6 text-wv-text-secondary">
             {description}
           </p>
         </div>
