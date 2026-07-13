@@ -1,5 +1,4 @@
 import wealthverseLogo from "@/assets/wealthverse/wealthverse-logo.png";
-import { AdvisorCapabilities, type AdvisorCapability } from "@/components/advisor/AdvisorCapabilities";
 import { AdvisorContextPanel } from "@/components/advisor/AdvisorContextPanel";
 import { AdvisorIdentity } from "@/components/advisor/AdvisorIdentity";
 import {
@@ -44,44 +43,6 @@ const defaultQuestions = [
   "Where can I reduce spending?",
   "Explain my top recommendation",
   "What risks should I review?",
-];
-
-const capabilities: AdvisorCapability[] = [
-  {
-    label: "Typed question input",
-    status: "works",
-    note: "Questions are sent to the existing deterministic advisor route.",
-  },
-  {
-    label: "Suggested prompt chips",
-    status: "works",
-    note: "Prompts use supported financial-health, goal, spending, recommendation, and risk intents.",
-  },
-  {
-    label: "Profile-aware guidance",
-    status: "works",
-    note: "Responses use the active WealthVerse demo profile and refresh after profile switching.",
-  },
-  {
-    label: "Conversation history",
-    status: "partial",
-    note: "Messages are shown for the current browser session. Long-term profile-separated history is not presented here.",
-  },
-  {
-    label: "Voice playback",
-    status: "partial",
-    note: "Browser text-to-speech can read advisor answers where supported.",
-  },
-  {
-    label: "Speech-to-text and microphone input",
-    status: "notImplemented",
-    note: "No verified frontend speech-input flow exists yet, so no microphone control is shown.",
-  },
-  {
-    label: "Financial execution",
-    status: "notImplemented",
-    note: "The advisor cannot transfer money, invest, connect accounts, or execute transactions.",
-  },
 ];
 
 export default function AvatarAdvisor() {
@@ -534,7 +495,6 @@ export default function AvatarAdvisor() {
               activeGoals={activeGoals}
               recommendations={recommendations}
             />
-            <AdvisorCapabilities capabilities={capabilities} />
             <section className="rounded-[var(--wv-radius-card)] border border-wv-border bg-wv-surface p-5 shadow-wv-card">
               <div className="flex gap-3">
                 <ShieldCheck className="mt-0.5 size-5 shrink-0 text-wv-primary" aria-hidden="true" />
