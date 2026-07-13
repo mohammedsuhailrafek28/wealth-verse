@@ -15,7 +15,9 @@ import {
   getBadgesByProfile,
   updateFinancialHealthScore,
   getMonthlyTransactionSummary,
+  getDatabaseHealth,
 } from "./db";
+import { ENV, getConfigWarnings } from "./_core/env";
 import {
   getProfileMetrics,
   calculateHealthScore,
@@ -24,6 +26,64 @@ import {
   getUnusualExpenses,
   getSavingsOpportunities,
 } from "./financialEngine";
+import {
+  answerWealthAdvisorQuestion,
+  buildWealthContextForUser,
+  buildPredictionBundle,
+  buildEventTimeline,
+  classifyAdvisorIntentForSession,
+  createAdvisorAnswerGeneratedEvent,
+  createAdvisorQuestionAskedEvent,
+  eventStore,
+  buildNotificationDigest,
+  notificationStore,
+  publishEventSafely,
+  publishPredictionEvents,
+  publishWealthContextEvents,
+  getPersistenceHealth,
+  buildTelemetryHealth,
+  buildTelemetryMetrics,
+  buildTelemetryTimeline,
+  inMemoryTelemetryStore,
+  measureAsync,
+  analyzeQuestion,
+} from "./wealth";
+import { buildAdvisorSessionContext } from "./wealth/memory/advisorSession";
+import {
+  clearConversationHistory,
+  getConversationHistory,
+  rememberAdvisorExchange,
+} from "./wealth/memory/conversationMemory";
+import {
+  getPreferenceProfile,
+  updatePreferenceProfile,
+} from "./wealth/memory/preferenceMemory";
+
+const preferencePatchSchema = z
+  .object({
+    riskTolerance: z.enum(["conservative", "balanced", "growth"]).optional(),
+    investmentInterest: z.enum(["low", "moderate", "high"]).optional(),
+    preferredLanguage: z.literal("english").optional(),
+    voiceEnabled: z.boolean().optional(),
+    goalPriority: z.enum(["emergencyFund", "debt", "investing", "savings"]).optional(),
+  })
+  .strict();
+
+const notificationQuerySchema = z
+  .object({
+    limit: z.number().int().min(1).max(100).optional(),
+    status: z.enum(["unread", "read", "dismissed"]).optional(),
+    category: z
+      .enum(["advisor", "goal", "recommendation", "risk", "alert", "prediction", "system"])
+      .optional(),
+  })
+  .optional();
+
+const telemetryQuerySchema = z
+  .object({
+    limit: z.number().int().min(1).max(500).optional(),
+  })
+  .optional();
 
 async function getOrCreateActiveDemoProfileId(userId: number) {
   const userProfile = await getUserActiveProfile(userId);
@@ -198,6 +258,306 @@ export const appRouter = router({
         category: r.category,
       }));
     }),
+  }),
+
+  // ============ Wealth Intelligence Layer ============
+  wealth: router({
+    getContext: protectedProcedure.query(async ({ ctx }) => {
+      const wealthContext = await buildWealthContextForUser(ctx.user.id);
+      if (wealthContext) {
+        await publishWealthContextEvents(ctx.user.id, wealthContext);
+      }
+      return wealthContext;
+    }),
+
+    getInsights: protectedProcedure.query(async ({ ctx }) => {
+      const wealthContext = await buildWealthContextForUser(ctx.user.id);
+      return wealthContext?.insights ?? [];
+    }),
+
+    getRiskProfile: protectedProcedure.query(async ({ ctx }) => {
+      const wealthContext = await buildWealthContextForUser(ctx.user.id);
+      return wealthContext?.riskProfile ?? null;
+    }),
+
+    getPersistenceHealth: protectedProcedure.query(async () => {
+      return getPersistenceHealth();
+    }),
+
+    getSystemHealth: protectedProcedure.query(async () => {
+      const [persistence, database] = await Promise.all([
+        getPersistenceHealth(),
+        getDatabaseHealth(),
+      ]);
+      const warnings = [...getConfigWarnings(), ...persistence.warnings];
+      const status =
+        database.status === "unavailable" && !ENV.isDemoMode
+          ? "degraded"
+          : persistence.status === "unavailable"
+            ? "degraded"
+            : "ok";
+
+      return {
+        status,
+        environment: ENV.isProduction ? "production" : "development",
+        demoMode: ENV.isDemoMode,
+        persistence,
+        database,
+        warnings: Array.from(new Set(warnings)),
+        version: process.env.npm_package_version ?? "1.0.0",
+        timestamp: new Date().toISOString(),
+      };
+    }),
+
+    getTelemetryMetrics: protectedProcedure
+      .input(telemetryQuerySchema)
+      .query(async ({ input, ctx }) => {
+        const events = await inMemoryTelemetryStore.getRecentEvents(ctx.user.id, {
+          limit: input?.limit ?? 500,
+        });
+        return buildTelemetryMetrics(events);
+      }),
+
+    getTelemetryHealth: protectedProcedure
+      .input(telemetryQuerySchema)
+      .query(async ({ input, ctx }) => {
+        const events = await inMemoryTelemetryStore.getRecentEvents(ctx.user.id, {
+          limit: input?.limit ?? 500,
+        });
+        return buildTelemetryHealth(events);
+      }),
+
+    getTelemetryTimeline: protectedProcedure
+      .input(z.object({ limit: z.number().int().min(1).max(100).optional() }).optional())
+      .query(async ({ input, ctx }) => {
+        const events = await inMemoryTelemetryStore.getRecentEvents(ctx.user.id, {
+          limit: input?.limit ?? 25,
+        });
+        return buildTelemetryTimeline(events, input?.limit ?? 25);
+      }),
+
+    clearTelemetry: protectedProcedure.mutation(async ({ ctx }) => {
+      await inMemoryTelemetryStore.clear(ctx.user.id);
+      return { success: true };
+    }),
+
+    analyzeQuestion: protectedProcedure
+      .input(z.object({ question: z.string().trim().min(1).max(600) }))
+      .query(async ({ input, ctx }) => {
+        const wealthContext = await buildWealthContextForUser(ctx.user.id);
+        const advisorSession = wealthContext
+          ? await buildAdvisorSessionContext(ctx.user.id, wealthContext)
+          : undefined;
+        return analyzeQuestion(input.question, { session: advisorSession });
+      }),
+
+    getPredictions: protectedProcedure.query(async ({ ctx }) => {
+      return measureAsync("wealth.getPredictions", "route", ctx.user.id, async () => {
+        const wealthContext = await buildWealthContextForUser(ctx.user.id);
+        if (!wealthContext) return null;
+        const advisorSession = await buildAdvisorSessionContext(ctx.user.id, wealthContext);
+        const bundle = buildPredictionBundle(wealthContext, advisorSession);
+        await publishPredictionEvents(ctx.user.id, bundle);
+        return bundle;
+      });
+    }),
+
+    getMonthlyOutlook: protectedProcedure.query(async ({ ctx }) => {
+      return measureAsync("wealth.getMonthlyOutlook", "route", ctx.user.id, async () => {
+        const wealthContext = await buildWealthContextForUser(ctx.user.id);
+        if (!wealthContext) return null;
+        const advisorSession = await buildAdvisorSessionContext(ctx.user.id, wealthContext);
+        const bundle = buildPredictionBundle(wealthContext, advisorSession);
+        await publishPredictionEvents(ctx.user.id, bundle);
+        return bundle.monthlyOutlook;
+      });
+    }),
+
+    getEvents: protectedProcedure
+      .input(
+        z
+          .object({
+            limit: z.number().int().min(1).max(100).optional(),
+            category: z
+              .enum([
+                "advisor",
+                "goal",
+                "recommendation",
+                "risk",
+                "alert",
+                "prediction",
+                "profile",
+                "system",
+              ])
+              .optional(),
+          })
+          .optional()
+      )
+      .query(async ({ input, ctx }) => {
+        const userId = String(ctx.user.id);
+        if (input?.category) {
+          return eventStore.getEventsByCategory(userId, input.category, input.limit ?? 20);
+        }
+        return eventStore.getRecentEvents(userId, input?.limit ?? 20);
+      }),
+
+    getEventTimeline: protectedProcedure
+      .input(z.object({ limit: z.number().int().min(1).max(20).optional() }).optional())
+      .query(async ({ input, ctx }) => {
+        const events = await eventStore.getRecentEvents(String(ctx.user.id), input?.limit ?? 10);
+        return buildEventTimeline(events, input?.limit ?? 10);
+      }),
+
+    clearEvents: protectedProcedure.mutation(async ({ ctx }) => {
+      await eventStore.clearEvents(String(ctx.user.id));
+      return { success: true };
+    }),
+
+    getNotifications: protectedProcedure
+      .input(notificationQuerySchema)
+      .query(async ({ input, ctx }) => {
+        return notificationStore.getNotifications(String(ctx.user.id), input ?? {});
+      }),
+
+    getUnreadNotificationCount: protectedProcedure.query(async ({ ctx }) => {
+      return notificationStore.getUnreadCount(String(ctx.user.id));
+    }),
+
+    markNotificationRead: protectedProcedure
+      .input(z.object({ notificationId: z.string().min(1) }))
+      .mutation(async ({ input, ctx }) => {
+        await notificationStore.markRead(String(ctx.user.id), input.notificationId);
+        return { success: true };
+      }),
+
+    markAllNotificationsRead: protectedProcedure.mutation(async ({ ctx }) => {
+      await notificationStore.markAllRead(String(ctx.user.id));
+      return { success: true };
+    }),
+
+    dismissNotification: protectedProcedure
+      .input(z.object({ notificationId: z.string().min(1) }))
+      .mutation(async ({ input, ctx }) => {
+        await notificationStore.dismiss(String(ctx.user.id), input.notificationId);
+        return { success: true };
+      }),
+
+    clearNotifications: protectedProcedure.mutation(async ({ ctx }) => {
+      await notificationStore.clearNotifications(String(ctx.user.id));
+      return { success: true };
+    }),
+
+    getNotificationDigest: protectedProcedure.query(async ({ ctx }) => {
+      const userId = String(ctx.user.id);
+      const [notifications, events] = await Promise.all([
+        notificationStore.getNotifications(userId, { limit: 100 }),
+        eventStore.getRecentEvents(userId, 100),
+      ]);
+      return buildNotificationDigest(notifications, events);
+    }),
+
+    getMemory: protectedProcedure
+      .input(z.object({ limit: z.number().int().min(1).max(20).optional() }).optional())
+      .query(async ({ input, ctx }) => {
+        return getConversationHistory(ctx.user.id, undefined, input?.limit ?? 20);
+      }),
+
+    clearMemory: protectedProcedure.mutation(async ({ ctx }) => {
+      await clearConversationHistory(ctx.user.id);
+      return { success: true };
+    }),
+
+    getPreferences: protectedProcedure.query(async ({ ctx }) => {
+      return getPreferenceProfile(ctx.user.id);
+    }),
+
+    updatePreferences: protectedProcedure
+      .input(preferencePatchSchema)
+      .mutation(async ({ input, ctx }) => {
+        return updatePreferenceProfile(ctx.user.id, input);
+      }),
+
+    askAdvisor: protectedProcedure
+      .input(z.object({ question: z.string().trim().min(3).max(600) }))
+      .mutation(async ({ input, ctx }) => {
+        return measureAsync("wealth.askAdvisor", "advisor", ctx.user.id, async () => {
+          await publishEventSafely(createAdvisorQuestionAskedEvent(ctx.user.id, input.question, "avatar"));
+          const wealthContext = await buildWealthContextForUser(ctx.user.id);
+          if (!wealthContext) {
+            return {
+              answer:
+                "I cannot answer yet because no active demo profile is available. Select or seed a demo profile first.",
+              summary: "No active WealthContext is available.",
+              keyInsights: ["No active WealthContext was found."],
+              suggestedNextActions: ["Select a demo profile and try the question again."],
+              followUpQuestions: ["How can I improve my score?"],
+              relatedMetrics: [],
+              confidenceLevel: "low" as const,
+              mode: "fallback" as const,
+              disclaimer:
+                "This is educational demo guidance, not licensed financial advice. Review decisions with a qualified financial professional before acting.",
+            };
+          }
+
+          const advisorSession = await buildAdvisorSessionContext(ctx.user.id, wealthContext);
+          const response = await answerWealthAdvisorQuestion(input.question, advisorSession);
+          await publishEventSafely(createAdvisorAnswerGeneratedEvent(ctx.user.id, response));
+          await rememberAdvisorExchange(
+            ctx.user.id,
+            input.question,
+            response,
+            classifyAdvisorIntentForSession(input.question, advisorSession)
+          );
+          return response;
+        });
+      }),
+  }),
+
+  // ============ AI Advisor Compatibility Route ============
+  advisor: router({
+    ask: protectedProcedure
+      .input(
+        z.object({
+          question: z.string().trim().min(3).max(600),
+          dashboardSummary: z.unknown().optional(),
+          spendingBreakdown: z.unknown().optional(),
+          goals: z.unknown().optional(),
+          recommendations: z.unknown().optional(),
+          recentTransactions: z.unknown().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return measureAsync("advisor.ask", "advisor", ctx.user.id, async () => {
+          await publishEventSafely(createAdvisorQuestionAskedEvent(ctx.user.id, input.question, "avatar"));
+          const wealthContext = await buildWealthContextForUser(ctx.user.id);
+          if (!wealthContext) {
+            return {
+              answer:
+                "I cannot answer yet because no active demo profile is available. Select or seed a demo profile first.",
+              summary: "No active WealthContext is available.",
+              keyInsights: ["No active WealthContext was found."],
+              suggestedNextActions: ["Select a demo profile and try the question again."],
+              followUpQuestions: ["How can I improve my score?"],
+              relatedMetrics: [],
+              confidenceLevel: "low" as const,
+              mode: "fallback" as const,
+              disclaimer:
+                "This is educational demo guidance, not licensed financial advice. Review decisions with a qualified financial professional before acting.",
+            };
+          }
+
+          const advisorSession = await buildAdvisorSessionContext(ctx.user.id, wealthContext);
+          const response = await answerWealthAdvisorQuestion(input.question, advisorSession);
+          await publishEventSafely(createAdvisorAnswerGeneratedEvent(ctx.user.id, response));
+          await rememberAdvisorExchange(
+            ctx.user.id,
+            input.question,
+            response,
+            classifyAdvisorIntentForSession(input.question, advisorSession)
+          );
+          return response;
+        });
+      }),
   }),
 
   // ============ Alerts ============
