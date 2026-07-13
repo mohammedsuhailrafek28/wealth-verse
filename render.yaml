@@ -3,7 +3,7 @@ services:
     name: wealthverse
     runtime: node
     plan: free
-    buildCommand: corepack enable && corepack pnpm install --frozen-lockfile && corepack pnpm run build
+    buildCommand: corepack pnpm install --frozen-lockfile && corepack pnpm run build
     startCommand: corepack pnpm start
     healthCheckPath: /api/health
     envVars:
